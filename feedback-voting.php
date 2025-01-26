@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.7
+Version:     1.0.8
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -24,7 +24,7 @@ require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-aja
 
 /**
  * Wird beim Aktivieren des Plugins ausgeführt.
- * Legt z.B. eine eigene Datenbank-Tabelle an und setzt Standard-Einstellungen.
+ * Legt eine eigene Datenbank-Tabelle an und setzt Standard-Einstellungen.
  */
 function feedback_voting_activate() {
     global $wpdb;

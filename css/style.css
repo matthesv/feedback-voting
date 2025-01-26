@@ -1,32 +1,28 @@
 /***************************************************************
-  Beispiel: WordPress-Block-Grundstyles (sofern gewünscht)
-  ... (hier ggf. die große WP-Block-CSS-Datei einfügen) ...
-***************************************************************/
-
-/***************************************************************
   Feedback Voting – Plugin-spezifische Klassen
 ***************************************************************/
 
 .feedback-voting-container {
-    /* Angleichung an das helle Layout */
     background-color: #fff;
-    border: 1px solid #e2e8ee; /* dezenter, heller Border-Ton */
+    border: 1px solid #e2e8ee;
     border-radius: 6px;
     padding: 16px;
-    max-width: 480px; /* etwas breiter als zuvor */
-    margin: 20px 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* leichter Schatten */
+    max-width: 480px;
+    margin: 20px auto;         /* Zentriert die Box selbst innerhalb der Seite */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    text-align: center;        /* Zentriert den Inhalt in der Box */
   }
   
   .feedback-question {
     font-weight: 600;
     margin-bottom: 12px;
-    color: #1b1c1c; /* etwas dunklerer Textfarbton */
+    color: #1b1c1c;
+    /* text-align: center; – entfällt, da bereits der Container zentriert */
   }
   
   /* JA/NEIN-Buttons im WP-Block-Stil */
   .feedback-button {
-    background-color: #00457c /* Primärfarbe anpassen an Corporate Design */
+    background-color: #0073aa;
     color: #fff;
     border: none;
     border-radius: 9999px; /* pillenförmiger Stil */
@@ -38,7 +34,7 @@
   }
   
   .feedback-button:hover {
-    background-color: #005b8d; /* dunklere Variante für Hover */
+    background-color: #005b8d;
   }
   
   /* Bereich für das Freitextfeld bei "Nein" */
@@ -46,26 +42,32 @@
     margin-top: 12px;
   }
   
+  /* Label mittig ausrichten */
   .feedback-no-text-container label {
-    display: block;
+    display: inline-block; /* Damit wir es besser mittig ausrichten können */
     margin-bottom: 6px;
     font-weight: 600;
     color: #1b1c1c;
+    text-align: center;
   }
   
+  /* Textarea mittig darstellen, aber die Inhalte links ausrichten */
   .feedback-no-text-container textarea {
-    width: 100%;
+    display: block;
+    margin: 0 auto;           /* Zentriert das Textfeld selbst */
+    width: 80%;               /* Ggf. die Breite anpassen */
     box-sizing: border-box;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
     min-height: 80px;
+    text-align: left;         /* Text in der Box linksbündig */
   }
   
   /* Danke-Nachricht */
   .feedback-thankyou-message {
     margin-top: 12px;
     font-style: italic;
-    color:  #00457c /* freundliches Grün */
+    color: #2c6f00;
   }
   
