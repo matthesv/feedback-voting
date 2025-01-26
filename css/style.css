@@ -54,14 +54,14 @@
 /* Textarea mittig darstellen, aber die Inhalte links ausrichten */
 .feedback-no-text-container textarea {
   display: block;
-  margin: 0 auto;           /* Zentriert das Textfeld selbst */
-  width: 80%;               /* Ggf. die Breite anpassen */
+  margin: 0 auto;           /* Zentriert das Textfeld */
+  width: 80%;
   box-sizing: border-box;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   min-height: 80px;
-  text-align: left;         /* Text in der Box linksbündig */
+  text-align: left;         /* Inhalt linksbündig */
 }
 
 /* Danke-Nachricht */

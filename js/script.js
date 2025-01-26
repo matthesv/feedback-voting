@@ -19,7 +19,7 @@ jQuery(function($) {
             container.find('.feedback-no-text-container').slideDown();
         }
         else {
-            // Wenn das Freitextfeld deaktiviert ist, dann trotzdem sofort "no" absenden
+            // Wenn das Freitextfeld deaktiviert ist, dann sofort "no" absenden
             submitVote(container, question, 'no', '');
         }
     });
@@ -30,7 +30,7 @@ jQuery(function($) {
 
         var container = $(this).closest('.feedback-voting-container');
         var question = container.data('question');
-        // Der Benutzer könnte noch nichts eingetippt haben, also darf es leer sein
+        // Der Benutzer könnte noch nichts eingetippt haben
         var feedbackText = container.find('#feedback-no-text').val().trim();
 
         // Jetzt wird "no" plus optionaler Freitext abgesendet
@@ -50,7 +50,7 @@ jQuery(function($) {
                 question: question,
                 vote: vote,
                 feedback: feedback,
-                // NEU: Nonce-Parameter
+                // Nonce-Parameter für den Security-Check
                 security: feedbackVoting.nonce
             },
             success: function(response) {

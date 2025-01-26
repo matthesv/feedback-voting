@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 class My_Feedback_Plugin_Ajax {
 
     public function __construct() {
-        // AJAX Hooks
+        // AJAX Hooks: für eingeloggte und ausgeloggte Benutzer
         add_action('wp_ajax_my_feedback_plugin_vote', array($this, 'handle_ajax_vote'));
         add_action('wp_ajax_nopriv_my_feedback_plugin_vote', array($this, 'handle_ajax_vote'));
     }
@@ -15,7 +15,9 @@ class My_Feedback_Plugin_Ajax {
      * Nimmt per AJAX das Feedback entgegen und speichert es in der Datenbank.
      */
     public function handle_ajax_vote() {
-        check_ajax_referer( 'feedback_nonce_action', 'security' ); // Optional: Zusätzlicher Nonce-Check
+        // Nonce-Check (schlägt fehl, wenn Cache oder abgelaufene Nonce)
+        check_ajax_referer('feedback_nonce_action', 'security');
+
         global $wpdb;
         $table_name = $wpdb->prefix . 'feedback_votes';
 

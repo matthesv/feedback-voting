@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.10
+Version:     1.0.11
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.10');
+define('FEEDBACK_VOTING_VERSION', '1.0.11');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -71,8 +71,14 @@ add_action('plugins_loaded', 'feedback_voting_init');
  */
 function feedback_voting_enqueue_scripts() {
 
-    // NEU: Ermittlung der filemtime, damit Cache-Buster genutzt werden kann
-    //      Falls auf manchen Caching-Systemen das Laden des CSS/JS Probleme macht
+    // NEU: Diese beiden Zeilen stellen sicher, dass
+    // - Dashicons für Daumen-Hoch/Runter-Icons
+    // - WP-Block-Stile für .wp-block-button & Co.
+    // auch im Frontend bei Gästen geladen werden:
+    wp_enqueue_style('dashicons');
+    wp_enqueue_style('wp-block-library');
+
+    // Cache-Buster anhand des Dateisystems (filemtime)
     $css_version = filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'css/style.css');
     $js_version  = filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'js/script.js');
 
@@ -80,7 +86,7 @@ function feedback_voting_enqueue_scripts() {
         'feedback-voting-style',
         FEEDBACK_VOTING_PLUGIN_URL . 'css/style.css',
         array(),
-        $css_version, // NEU: DateTime-Hash als Versionsstring
+        $css_version, // DateTime-Hash als Versionsstring
         'all'
     );
 
@@ -88,15 +94,15 @@ function feedback_voting_enqueue_scripts() {
         'feedback-voting-script',
         FEEDBACK_VOTING_PLUGIN_URL . 'js/script.js',
         array('jquery'),
-        $js_version, // NEU: DateTime-Hash als Versionsstring
+        $js_version, // DateTime-Hash als Versionsstring
         true
     );
 
-    // NEU: Nonce-Generierung und -Übergabe
+    // Nonce-Generierung und -Übergabe ans Script
     wp_localize_script('feedback-voting-script', 'feedbackVoting', array(
         'ajaxUrl'             => admin_url('admin-ajax.php'),
         'enableFeedbackField' => get_option('feedback_voting_enable_feedback_field', '1'),
-        'nonce'               => wp_create_nonce('feedback_nonce_action'), // NEU
+        'nonce'               => wp_create_nonce('feedback_nonce_action'),
     ));
 }
 add_action('wp_enqueue_scripts', 'feedback_voting_enqueue_scripts');
