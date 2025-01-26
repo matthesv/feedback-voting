@@ -33,21 +33,23 @@ class My_Feedback_Plugin_Shortcode {
              data-postid="<?php echo esc_attr($post_id); ?>">
 
             <!-- Zeile mit der Frage und den Buttons -->
-            <p class="feedback-question">
-                <?php echo esc_html($question); ?>
-            </p>
+            <div class="feedback-voting-top-row">
+                <p class="feedback-question">
+                    <?php echo esc_html($question); ?>
+                </p>
 
-            <!-- Daumen hoch -->
-            <button class="feedback-button feedback-yes" data-vote="yes">
-                <span class="dashicons dashicons-thumbs-up"></span>
-                <?php _e('Ja, war sie', 'feedback-voting'); ?>
-            </button>
+                <!-- Daumen hoch -->
+                <button class="feedback-button feedback-yes" data-vote="yes">
+                    <span class="dashicons dashicons-thumbs-up"></span>
+                    <span class="button-text"><?php _e('Ja, war sie', 'feedback-voting'); ?></span>
+                </button>
 
-            <!-- Daumen runter -->
-            <button class="feedback-button feedback-no" data-vote="no">
-                <span class="dashicons dashicons-thumbs-down"></span>
-                <?php _e('Nein, leider nicht', 'feedback-voting'); ?>
-            </button>
+                <!-- Daumen runter -->
+                <button class="feedback-button feedback-no" data-vote="no">
+                    <span class="dashicons dashicons-thumbs-down"></span>
+                    <span class="button-text"><?php _e('Nein, leider nicht', 'feedback-voting'); ?></span>
+                </button>
+            </div>
 
             <!-- Freitext-Bereich bei "Nein" (per JS einblendbar) -->
             <div class="feedback-no-text-container">
@@ -58,7 +60,7 @@ class My_Feedback_Plugin_Shortcode {
 
                 <!-- Separater Button für das Absenden der Nein-Feedbacks -->
                 <button class="feedback-button feedback-submit-no">
-                    <?php _e('Feedback senden', 'feedback-voting'); ?>
+                    <span class="button-text"><?php _e('Feedback senden', 'feedback-voting'); ?></span>
                 </button>
             </div>
         </div>

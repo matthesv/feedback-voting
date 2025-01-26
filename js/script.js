@@ -18,20 +18,17 @@ jQuery(function($) {
             $(this).prop('disabled', true);
             submitVote(container, question, 'yes', '', postId);
         }
-        // "Nein" -> falls Freitextfeld aktiviert: einblenden, sonst ebenso per „Feedback senden“-Button absenden
+        // "Nein"
         else if (vote === 'no') {
-            // Wir verhindern, dass beim ersten "no"-Klick sofort ein Insert passiert.
-            // Stattdessen zeigen wir (falls aktiviert) das Textfeld an oder wir könnten auch hier direkt submitten,
-            // wenn Option ausgeschaltet ist.
-            
+            // Wenn das Freitextfeld laut Einstellung aktiv ist, erst Feld einblenden,
+            // sonst direkt absenden.
             if (enableFeedbackField === '1') {
                 // Button "no" deaktivieren, damit kein Mehrfachklick
                 $(this).prop('disabled', true);
                 // Textcontainer einblenden
                 container.find('.feedback-no-text-container').slideDown();
             } else {
-                // Wenn das Feld laut Einstellung nicht gezeigt wird, direkt speichern
-                // Button "no" deaktivieren, damit kein Mehrfachklick
+                // Falls Freitextfeld deaktiviert, sofort abschicken
                 $(this).prop('disabled', true);
                 submitVote(container, question, 'no', '', postId);
             }

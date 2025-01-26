@@ -2,19 +2,22 @@
   Feedback Voting – Plugin-spezifische Klassen
 ***************************************************************/
 
-/* -------------------------------
-   Neue, einfache Box-Optik
----------------------------------*/
+/* Container allgemein als Block-Element */
 .feedback-voting-container {
   border: 1.5px solid var(--primary);
   border-radius: 6rem;
   font-size: 1rem;
   padding: 0.5rem 1rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
+  display: block;
   /* Neu: zusätzlicher Abstand nach unten */
   margin-bottom: 1.5rem;
+}
+
+/* Obere Zeile mit Frage + Ja/Nein-Buttons nebeneinander */
+.feedback-voting-top-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 /* Frage-Text */
@@ -24,7 +27,7 @@
   color: #1b1c1c;
 }
 
-/* JA/NEIN-Buttons (pillenförmig) */
+/* JA/NEIN-Buttons (Pillenform) */
 .feedback-button {
   background-color: #0073aa;
   color: #fff;
@@ -68,9 +71,21 @@
   min-height: 80px;
 }
 
+/* Mehr Abstand zwischen Textarea und dem Absende-Button */
+.feedback-no-text-container .feedback-submit-no {
+  margin-top: 0.75rem;
+}
+
 /* Optionales Styling für den Dankes-Text */
 .feedback-thankyou {
   font-weight: 600;
   color: #0073aa;
   margin: 0;
+}
+
+/* Mobile: Nur Icons anzeigen, Text ausblenden */
+@media only screen and (max-width: 600px) {
+  .feedback-button .button-text {
+    display: none;
+  }
 }
