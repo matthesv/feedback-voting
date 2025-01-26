@@ -57,6 +57,7 @@
   font-weight: 600;
   color: #1b1c1c;
 }
+
 .feedback-no-text-container textarea {
   display: block;
   width: 100%;
@@ -67,7 +68,17 @@
   min-height: 80px;
 }
 
-/* Wenn abgestimmt wurde, die gesamte Box ausblenden */
+/* Ursprünglich wurde das ganze .feedback-voting-container versteckt.
+   Jetzt NICHT mehr ausblenden, sondern nur die Buttons ersetzen. */
+/*
 .feedback-voting-container.feedback-submitted {
   display: none !important;
+}
+*/
+
+/* Optionales Styling für den Dankes-Text */
+.feedback-thankyou {
+  font-weight: 600;
+  color: #0073aa;
+  margin: 0;
 }

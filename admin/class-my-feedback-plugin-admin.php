@@ -135,13 +135,29 @@ class My_Feedback_Plugin_Admin {
             LIMIT 10
         ");
 
-        // Letzte 50 Feedbacks (inkl. Freitext)
-        $all_feedbacks = $wpdb->get_results("
-            SELECT *
-            FROM $table_name
-            ORDER BY created_at DESC
-            LIMIT 50
-        ");
+        // --- Filter für Shortcode-Location (post_id) ---
+        // Prüfen, ob ein Filter aktiv ist:
+        $selected_post_id = isset($_GET['post_id_filter']) ? intval($_GET['post_id_filter']) : 0;
+
+        if ($selected_post_id > 0) {
+            // Nur bestimmte post_id abrufen
+            $all_feedbacks = $wpdb->get_results($wpdb->prepare("
+                SELECT *
+                FROM $table_name
+                WHERE post_id = %d
+                ORDER BY created_at DESC
+                LIMIT 150
+            ", $selected_post_id));
+        } else {
+            // Alle (letzte 150)
+            $all_feedbacks = $wpdb->get_results("
+                SELECT *
+                FROM $table_name
+                ORDER BY created_at DESC
+                LIMIT 150
+            ");
+        }
+
         ?>
         <div class="wrap">
             <h1><?php _e('Feedback Voting Dashboard', 'feedback-voting'); ?></h1>
@@ -178,7 +194,37 @@ class My_Feedback_Plugin_Admin {
             </table>
 
             <hr>
-            <h2><?php _e('Alle Feedback-Einträge (letzte 50)', 'feedback-voting'); ?></h2>
+            <h2>
+                <?php _e('Alle Feedback-Einträge (letzte 150)', 'feedback-voting'); ?>
+            </h2>
+
+            <!-- Filter für Shortcode-Location -->
+            <form method="get" style="margin-bottom: 1em;">
+                <input type="hidden" name="page" value="feedback-voting"/>
+                <label for="post_id_filter">
+                    <?php _e('Shortcode-Location (post_id) filtern:', 'feedback-voting'); ?>
+                </label>
+                <input
+                    type="number"
+                    name="post_id_filter"
+                    id="post_id_filter"
+                    value="<?php echo $selected_post_id ? $selected_post_id : ''; ?>"
+                />
+                <input
+                    type="submit"
+                    class="button button-secondary"
+                    value="<?php esc_attr_e('Filter', 'feedback-voting'); ?>"
+                />
+                <?php if ($selected_post_id) : ?>
+                    <a
+                        class="button button-link"
+                        href="<?php echo admin_url('admin.php?page=feedback-voting'); ?>"
+                    >
+                        <?php _e('Filter zurücksetzen', 'feedback-voting'); ?>
+                    </a>
+                <?php endif; ?>
+            </form>
+
             <table class="widefat fixed striped">
                 <thead>
                     <tr>

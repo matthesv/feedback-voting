@@ -17,7 +17,6 @@ jQuery(function($) {
         }
         // Bei "Nein" und Option aktiv -> Freitextfeld zuerst einblenden
         else if (vote === 'no' && enableFeedbackField === '1') {
-            // Zeige Freitextfeld
             container.find('.feedback-no-text-container').slideDown();
         }
         else {
@@ -58,8 +57,15 @@ jQuery(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    // Box ausblenden
-                    container.addClass('feedback-submitted');
+                    // Anstatt die Box auszublenden, entfernen wir Buttons & Frage
+                    // und zeigen stattdessen unseren Dankes-Text an.
+                    container.find('.feedback-question, .feedback-button, .feedback-no-text-container').remove();
+
+                    container.append(
+                        '<p class="feedback-thankyou">'+
+                        'Danke für\'s Feedback! Jede Antwort hilft uns dabei besser zu werden.'+
+                        '</p>'
+                    );
                 } else {
                     // Bei Fehler wieder aktivieren
                     container.find('.feedback-button').prop('disabled', false);
