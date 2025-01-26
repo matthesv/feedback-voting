@@ -1,4 +1,5 @@
 jQuery(function($) {
+
     // Globale Einstellung, ob das Freitextfeld bei "Nein" aktiviert ist:
     var enableFeedbackField = feedbackVoting.enableFeedbackField;
 
@@ -11,17 +12,29 @@ jQuery(function($) {
         var postId = container.data('postid') || 0;
         var vote = $(this).data('vote');
 
-        // Bei "Ja" -> direkt speichern
+        // "Ja" -> direkt speichern
         if (vote === 'yes') {
+            // Button sofort deaktivieren, damit nicht mehrfach geklickt wird
+            $(this).prop('disabled', true);
             submitVote(container, question, 'yes', '', postId);
         }
-        // Bei "Nein" + Option aktiv -> Freitextfeld erst einblenden
-        else if (vote === 'no' && enableFeedbackField === '1') {
-            container.find('.feedback-no-text-container').slideDown();
-        }
-        else {
-            // Wenn Freitextfeld deaktiviert -> sofort "no" absenden
-            submitVote(container, question, 'no', '', postId);
+        // "Nein" -> falls Freitextfeld aktiviert: einblenden, sonst ebenso per „Feedback senden“-Button absenden
+        else if (vote === 'no') {
+            // Wir verhindern, dass beim ersten "no"-Klick sofort ein Insert passiert.
+            // Stattdessen zeigen wir (falls aktiviert) das Textfeld an oder wir könnten auch hier direkt submitten,
+            // wenn Option ausgeschaltet ist.
+            
+            if (enableFeedbackField === '1') {
+                // Button "no" deaktivieren, damit kein Mehrfachklick
+                $(this).prop('disabled', true);
+                // Textcontainer einblenden
+                container.find('.feedback-no-text-container').slideDown();
+            } else {
+                // Wenn das Feld laut Einstellung nicht gezeigt wird, direkt speichern
+                // Button "no" deaktivieren, damit kein Mehrfachklick
+                $(this).prop('disabled', true);
+                submitVote(container, question, 'no', '', postId);
+            }
         }
     });
 
@@ -34,13 +47,16 @@ jQuery(function($) {
         var postId = container.data('postid') || 0;
         var feedbackText = container.find('#feedback-no-text').val().trim();
 
+        // Button deaktivieren, um Doppelklick zu verhindern
+        $(this).prop('disabled', true);
+
         // "no" + Freitext speichern
         submitVote(container, question, 'no', feedbackText, postId);
     });
 
     // AJAX-Vote-Funktion
     function submitVote(container, question, vote, feedback, postId) {
-        // Buttons deaktivieren, damit nichts doppelt geklickt wird
+        // Alle Buttons deaktivieren, damit wirklich nichts doppelt gesendet wird
         container.find('.feedback-button').prop('disabled', true);
 
         $.ajax({

@@ -19,7 +19,7 @@
 
 /* Frage-Text */
 .feedback-question {
-  margin: 0; 
+  margin: 0;
   font-weight: normal; /* war zuvor 600 */
   color: #1b1c1c;
 }

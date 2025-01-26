@@ -13,9 +13,8 @@ class My_Feedback_Plugin_Ajax {
 
     /**
      * Nimmt per AJAX das Feedback entgegen und speichert es in der Datenbank.
-     * Wir speichern IMMER nur einmal pro Klick.
      * - "Ja" -> sofort Insert
-     * - "Nein" -> Insert erst, wenn tatsächlich "Feedback senden" geklickt wird
+     * - "Nein" -> Insert erst, wenn "Feedback senden" geklickt wird
      */
     public function handle_ajax_vote() {
         // Nonce-Check
@@ -43,7 +42,7 @@ class My_Feedback_Plugin_Ajax {
             'created_at'    => current_time('mysql')
         );
 
-        // Format-Array
+        // Versuchen zu speichern
         $result = $wpdb->insert(
             $table_name,
             $data,
