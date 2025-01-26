@@ -6,26 +6,21 @@
    Neue, einfache Box-Optik
 ---------------------------------*/
 .feedback-voting-container {
-  /* Vom Nutzer gewünscht: */
   border: 1.5px solid var(--primary);
   border-radius: 6rem;
   font-size: 1rem;
   padding: 0.5rem 1rem;
-
-  /* Macht die Frage + Buttons in einer Zeile */
   display: inline-flex;
   align-items: center;
   gap: 1rem;
-
-  /* Falls du die Box zentrieren willst, auskommentieren: 
-     margin: 20px auto; 
-     max-width: 480px; */
+  /* Neu: zusätzlicher Abstand nach unten */
+  margin-bottom: 1.5rem;
 }
 
-/* Frage-Text links; wir lassen Buttons direkt daneben */
+/* Frage-Text (nicht mehr fett) */
 .feedback-question {
   margin: 0; 
-  font-weight: 600;
+  font-weight: normal; /* war zuvor 600 */
   color: #1b1c1c;
 }
 
