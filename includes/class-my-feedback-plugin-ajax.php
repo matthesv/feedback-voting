@@ -41,9 +41,15 @@ class My_Feedback_Plugin_Ajax {
             'created_at'    => current_time('mysql')
         );
 
-        $result = $wpdb->insert($table_name, $data);
+        // Wichtig: Format-Array angeben, damit WP weiß, wie die Daten eingefügt werden.
+        $result = $wpdb->insert(
+            $table_name,
+            $data,
+            array('%s','%s','%s','%d','%s')
+        );
 
         if ($result === false) {
+            // Ggf. weitere Debug-Ausgabe via $wpdb->last_error oder $wpdb->last_query
             wp_send_json_error(array(
                 'message' => __('Fehler beim Speichern der Bewertung.', 'feedback-voting')
             ));

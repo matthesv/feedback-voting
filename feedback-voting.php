@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.13
+Version:     1.0.14
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.13');
+define('FEEDBACK_VOTING_VERSION', '1.0.14');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -31,14 +31,15 @@ function feedback_voting_activate() {
     $table_name = $wpdb->prefix . 'feedback_votes';
     $charset_collate = $wpdb->get_charset_collate();
 
-    // Neue Spalte "post_id" hinzugefügt.
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+    // Angepasst: Keine "DEFAULT CURRENT_TIMESTAMP" – das kann zu Problemen führen
+    // Außerdem entfernen wir "IF NOT EXISTS", da dbDelta() die Tabelle sowieso erstellt oder updatet.
+    $sql = "CREATE TABLE $table_name (
         id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         question TEXT NOT NULL,
         vote VARCHAR(10) NOT NULL,
         feedback_text TEXT NULL,
         post_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        created_at DATETIME NOT NULL,
         PRIMARY KEY (id)
     ) $charset_collate;";
 
@@ -59,11 +60,11 @@ function feedback_voting_deactivate() {
 register_deactivation_hook(__FILE__, 'feedback_voting_deactivate');
 
 /**
- * Initialisiert die Plugin-Klassen und aktualisiert ggf. die Datenbankstruktur.
+ * Initialisiert die Plugin-Klassen und führt ggf. ein Datenbank-Update durch.
  */
 function feedback_voting_init() {
-    // Führt beim "normalen" Laden von WordPress noch einmal dbDelta aus,
-    // damit bei Plugin-Updates neue Spalten angelegt werden.
+    // Beim normalen Laden: Noch einmal dbDelta ausführen, damit neue Spalten angelegt werden.
+    // (Nur nötig, wenn man sicherstellen will, dass die Tabelle auch bei Plugin-Updates passt.)
     feedback_voting_activate();
 
     new My_Feedback_Plugin_Admin();
