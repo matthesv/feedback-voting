@@ -1,0 +1,482 @@
+Projekt:Wordpress Plugin feedback-voting
+Deine Rolle: Du hast diese Anwendung für mich programmiert. Bitte unterstütze mich bei der Optimierung und Erweiterung des Codes.
+Anforderungen:
+1. Vollständige Dateien bereitstellen:
+- Wenn Änderungen an einer Datei notwendig sind, gib mir bitte stets die vollständige Datei zurück.
+2. Sinnvolle Architektur bedenken:
+- Nicht zu viel Code in einer Datei, damit der Code gut gewartet werden kann.
+Beginn des Codes C:\Users\rando\OneDrive\Dokumente\Websites\feedback-voting\feedback-voting.php 
+ 
+<?php
+/*
+Plugin Name: Feedback Voting
+Plugin URI:  https://www.abg.de
+Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
+Version:     1.0.1
+Author:      Matthes Vogel
+Text Domain: feedback-voting
+*/
+
+if (!defined('ABSPATH')) {
+    exit; // Sicherheitsabbruch, falls direkt aufgerufen
+}
+
+// Plugin-Konstanten definieren
+define('FEEDBACK_VOTING_VERSION', '1.0.0');
+define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+// Benötigte Dateien einbinden
+require_once FEEDBACK_VOTING_PLUGIN_DIR . 'admin/class-my-feedback-plugin-admin.php';
+require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-shortcode.php';
+require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-ajax.php';
+
+/**
+ * Wird beim Aktivieren des Plugins ausgeführt.
+ * Legt z.B. eine eigene Datenbank-Tabelle an und setzt Standard-Einstellungen.
+ */
+function feedback_voting_activate() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'feedback_votes';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        question TEXT NOT NULL,
+        vote VARCHAR(10) NOT NULL,
+        feedback_text TEXT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY (id)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+
+    // Standard-Option für das Freitextfeld bei "Nein"
+    add_option('feedback_voting_enable_feedback_field', '1');
+}
+register_activation_hook(__FILE__, 'feedback_voting_activate');
+
+/**
+ * Wird beim Deaktivieren des Plugins ausgeführt.
+ * Momentan keine weiteren Aktionen nötig.
+ */
+function feedback_voting_deactivate() {
+    // Ggf. weitere Aufräumarbeiten
+}
+register_deactivation_hook(__FILE__, 'feedback_voting_deactivate');
+
+/**
+ * Initialisiert die Plugin-Klassen.
+ */
+function feedback_voting_init() {
+    new My_Feedback_Plugin_Admin();
+    new My_Feedback_Plugin_Shortcode();
+    new My_Feedback_Plugin_Ajax();
+}
+add_action('plugins_loaded', 'feedback_voting_init');
+
+/**
+ * Lädt die Styles und Skripte im Frontend.
+ */
+function feedback_voting_enqueue_scripts() {
+    wp_enqueue_style(
+        'feedback-voting-style',
+        FEEDBACK_VOTING_PLUGIN_URL . 'css/style.css',
+        array(),
+        FEEDBACK_VOTING_VERSION,
+        'all'
+    );
+
+    wp_enqueue_script(
+        'feedback-voting-script',
+        FEEDBACK_VOTING_PLUGIN_URL . 'js/script.js',
+        array('jquery'),
+        FEEDBACK_VOTING_VERSION,
+        true
+    );
+
+    // Übergibt PHP-Daten an das JavaScript (AJAX-URL, Plugin-Einstellungen etc.)
+    wp_localize_script('feedback-voting-script', 'feedbackVoting', array(
+        'ajaxUrl'               => admin_url('admin-ajax.php'),
+        'enableFeedbackField'   => get_option('feedback_voting_enable_feedback_field', '1')
+    ));
+}
+add_action('wp_enqueue_scripts', 'feedback_voting_enqueue_scripts');
+
+// Plugin Update Checker laden (GitHub)
+require FEEDBACK_VOTING_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$myUpdateChecker = PucFactory::buildUpdateChecker(
+    'https://github.com/matthesv/feedback-voting/',
+    __FILE__,
+    'feedback-voting'
+);
+$myUpdateChecker->setBranch('main'); 
+Beginn des Codes C:\Users\rando\OneDrive\Dokumente\Websites\feedback-voting\admin\class-my-feedback-plugin-admin.php 
+ 
+<?php
+if (!defined('ABSPATH')) {
+    exit; // Sicherheitsabbruch
+}
+
+class My_Feedback_Plugin_Admin {
+
+    public function __construct() {
+        add_action('admin_menu', array($this, 'register_admin_menu'));
+        add_action('admin_init', array($this, 'register_settings'));
+    }
+
+    /**
+     * Erstellt den Menüpunkt in der WordPress-Admin-Oberfläche.
+     */
+    public function register_admin_menu() {
+        add_menu_page(
+            __('Feedback Voting', 'feedback-voting'),
+            __('Feedback Voting', 'feedback-voting'),
+            'manage_options',
+            'feedback-voting',
+            array($this, 'render_admin_page'),
+            'dashicons-thumbs-up', // Icon
+            80
+        );
+    }
+
+    /**
+     * Registriert die Plugin-Einstellungen im Bereich "Einstellungen".
+     */
+    public function register_settings() {
+        register_setting('feedback_voting_settings_group', 'feedback_voting_enable_feedback_field');
+
+        add_settings_section(
+            'feedback_voting_settings_section',
+            __('Feedback Voting Einstellungen', 'feedback-voting'),
+            null,
+            'feedback_voting_settings'
+        );
+
+        add_settings_field(
+            'feedback_voting_enable_feedback_field',
+            __('Freitext-Feld bei "Nein" aktivieren?', 'feedback-voting'),
+            array($this, 'feedback_field_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
+    }
+
+    /**
+     * Rendert das Eingabefeld für die Einstellung, ob ein Freitextfeld bei "Nein" angezeigt wird.
+     */
+    public function feedback_field_render() {
+        $value = get_option('feedback_voting_enable_feedback_field', '1');
+        ?>
+        <input
+            type="checkbox"
+            name="feedback_voting_enable_feedback_field"
+            value="1"
+            <?php checked($value, '1'); ?>
+        />
+        <span><?php _e('Aktivieren, damit ein Freitext-Feld erscheint, wenn der Benutzer "Nein" wählt.', 'feedback-voting'); ?></span>
+        <?php
+    }
+
+    /**
+     * Baut die eigentliche Admin-Seite (Dashboard) auf.
+     */
+    public function render_admin_page() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'feedback_votes';
+
+        // Gesamtanzahl Ja/Nein
+        $total_yes = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE vote = 'yes'");
+        $total_no  = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE vote = 'no'");
+
+        // Hol dir die am häufigsten bewerteten Fragen
+        $results = $wpdb->get_results("
+            SELECT question,
+                   SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END) AS total_yes,
+                   SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END) AS total_no
+            FROM $table_name
+            GROUP BY question
+            ORDER BY (SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END) + SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END)) DESC
+            LIMIT 10
+        ");
+        ?>
+        <div class="wrap">
+            <h1><?php _e('Feedback Voting Dashboard', 'feedback-voting'); ?></h1>
+            <hr>
+
+            <h2><?php _e('Gesamtübersicht', 'feedback-voting'); ?></h2>
+            <p><strong><?php _e('Anzahl "Ja":', 'feedback-voting'); ?></strong> <?php echo intval($total_yes); ?></p>
+            <p><strong><?php _e('Anzahl "Nein":', 'feedback-voting'); ?></strong> <?php echo intval($total_no); ?></p>
+
+            <h2><?php _e('Top Fragen', 'feedback-voting'); ?></h2>
+            <table class="widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th><?php _e('Frage', 'feedback-voting'); ?></th>
+                        <th><?php _e('"Ja" Stimmen', 'feedback-voting'); ?></th>
+                        <th><?php _e('"Nein" Stimmen', 'feedback-voting'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($results)) : ?>
+                        <?php foreach ($results as $row) : ?>
+                            <tr>
+                                <td><?php echo esc_html($row->question); ?></td>
+                                <td><?php echo intval($row->total_yes); ?></td>
+                                <td><?php echo intval($row->total_no); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="3"><?php _e('Keine Daten vorhanden.', 'feedback-voting'); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <hr>
+            <h2><?php _e('Einstellungen', 'feedback-voting'); ?></h2>
+            <form method="post" action="options.php">
+                <?php
+                settings_fields('feedback_voting_settings_group');
+                do_settings_sections('feedback_voting_settings');
+                submit_button();
+                ?>
+            </form>
+        </div>
+        <?php
+    }
+}
+ 
+Beginn des Codes C:\Users\rando\OneDrive\Dokumente\Websites\feedback-voting\css\style.css 
+ 
+.feedback-voting-container {
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    padding: 20px;
+    max-width: 400px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.feedback-question {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.feedback-button {
+    background-color: #0073AA;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    margin-right: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.feedback-button:hover {
+    background-color: #006799;
+}
+
+.feedback-no-text-container {
+    margin-top: 10px;
+}
+
+.feedback-no-text-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.feedback-no-text-container textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.feedback-thankyou-message {
+    margin-top: 10px;
+    font-style: italic;
+    color: #2c6f00;
+}
+ 
+Beginn des Codes C:\Users\rando\OneDrive\Dokumente\Websites\feedback-voting\includes\class-my-feedback-plugin-ajax.php 
+ 
+<?php
+if (!defined('ABSPATH')) {
+    exit; // Sicherheitsabbruch
+}
+
+class My_Feedback_Plugin_Ajax {
+
+    public function __construct() {
+        // AJAX Hooks
+        add_action('wp_ajax_my_feedback_plugin_vote', array($this, 'handle_ajax_vote'));
+        add_action('wp_ajax_nopriv_my_feedback_plugin_vote', array($this, 'handle_ajax_vote'));
+    }
+
+    /**
+     * Nimmt per AJAX das Feedback entgegen und speichert es in der Datenbank.
+     */
+    public function handle_ajax_vote() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'feedback_votes';
+
+        $question = isset($_POST['question']) ? sanitize_text_field($_POST['question']) : '';
+        $vote     = isset($_POST['vote']) ? sanitize_text_field($_POST['vote']) : '';
+        $feedback = isset($_POST['feedback']) ? sanitize_textarea_field($_POST['feedback']) : '';
+
+        if (empty($question) || empty($vote)) {
+            wp_send_json_error(array(
+                'message' => __('Ungültige Daten übermittelt.', 'feedback-voting')
+            ));
+        }
+
+        $data = array(
+            'question'     => $question,
+            'vote'         => $vote,
+            'feedback_text'=> $feedback,
+            'created_at'   => current_time('mysql')
+        );
+
+        $result = $wpdb->insert($table_name, $data);
+
+        if ($result === false) {
+            wp_send_json_error(array(
+                'message' => __('Fehler beim Speichern der Bewertung.', 'feedback-voting')
+            ));
+        } else {
+            wp_send_json_success(array(
+                'message' => __('Bewertung erfolgreich gespeichert.', 'feedback-voting')
+            ));
+        }
+    }
+}
+ 
+Beginn des Codes C:\Users\rando\OneDrive\Dokumente\Websites\feedback-voting\includes\class-my-feedback-plugin-shortcode.php 
+ 
+<?php
+if (!defined('ABSPATH')) {
+    exit; // Sicherheitsabbruch
+}
+
+class My_Feedback_Plugin_Shortcode {
+
+    public function __construct() {
+        add_shortcode('feedback_voting', array($this, 'render_shortcode'));
+    }
+
+    /**
+     * Rendert den Shortcode [feedback_voting question="..."]
+     */
+    public function render_shortcode($atts) {
+        // Standardwerte festlegen
+        $atts = shortcode_atts(array(
+            'question' => __('Hat Ihnen diese Antwort geholfen?', 'feedback-voting'),
+        ), $atts, 'feedback_voting');
+
+        $question = $atts['question'];
+
+        ob_start();
+        ?>
+        <div class="feedback-voting-container" data-question="<?php echo esc_attr($question); ?>">
+            <p class="feedback-question"><?php echo esc_html($question); ?></p>
+            <button class="feedback-button feedback-yes" data-vote="yes">
+                <span class="dashicons dashicons-thumbs-up"></span>
+                <?php _e('Ja', 'feedback-voting'); ?>
+            </button>
+            <button class="feedback-button feedback-no" data-vote="no">
+                <span class="dashicons dashicons-thumbs-down"></span>
+                <?php _e('Nein', 'feedback-voting'); ?>
+            </button>
+
+            <!-- Freitext-Bereich bei "Nein" (anfangs ausgeblendet) -->
+            <div class="feedback-no-text-container" style="display: none;">
+                <label for="feedback-no-text">
+                    <?php _e('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'); ?>
+                </label>
+                <textarea id="feedback-no-text" rows="3"></textarea>
+            </div>
+
+            <!-- Danke-Nachricht (anfangs ausgeblendet) -->
+            <div class="feedback-thankyou-message" style="display: none;">
+                <?php _e('Vielen Dank für Ihr Feedback!', 'feedback-voting'); ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+}
+ 
+Beginn des Codes C:\Users\rando\OneDrive\Dokumente\Websites\feedback-voting\js\script.js 
+ 
+jQuery(document).ready(function($) {
+
+    $('.feedback-voting-container').each(function() {
+        var container = $(this);
+        var question = container.data('question');
+
+        // Aus den per wp_localize_script übergebenen Daten
+        var enableFeedbackField = feedbackVoting.enableFeedbackField;
+
+        // Klick auf Ja/Nein-Button
+        container.find('.feedback-button').on('click', function() {
+            var vote = $(this).data('vote');
+
+            // Bei "Nein" und aktivierter Option -> Freitextfeld anzeigen
+            if (vote === 'no' && enableFeedbackField === '1') {
+                container.find('.feedback-no-text-container').slideDown();
+            } else {
+                // Sonst direkt Vote abschicken
+                container.find('.feedback-no-text-container').slideUp();
+                submitVote(question, vote, '');
+            }
+        });
+
+        // Wenn der User das Textfeld verlässt (blur), wird automatisch gesendet
+        container.find('#feedback-no-text').on('blur', function() {
+            var feedbackText = $(this).val();
+            if (feedbackText.trim() !== '') {
+                submitVote(question, 'no', feedbackText);
+            }
+        });
+
+        // AJAX-Vote-Funktion
+        function submitVote(question, vote, feedback) {
+            // Buttons deaktivieren, damit nicht doppelt geklickt wird
+            container.find('.feedback-button').prop('disabled', true);
+
+            $.ajax({
+                url: feedbackVoting.ajaxUrl,
+                method: 'POST',
+                data: {
+                    action: 'my_feedback_plugin_vote',
+                    question: question,
+                    vote: vote,
+                    feedback: feedback
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Danke-Nachricht einblenden
+                        container.find('.feedback-thankyou-message').slideDown();
+                    } else {
+                        // Bei Fehler Buttons wieder aktivieren
+                        container.find('.feedback-button').prop('disabled', false);
+                        alert(response.data.message);
+                    }
+                },
+                error: function() {
+                    // Bei Netzwerkfehler Buttons wieder aktivieren
+                    container.find('.feedback-button').prop('disabled', false);
+                    alert('Es ist ein Fehler beim Senden der Bewertung aufgetreten.');
+                }
+            });
+        }
+    });
+
+});
+ 

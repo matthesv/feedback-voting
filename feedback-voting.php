@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.1
+Version:     1.0.2
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.0');
+define('FEEDBACK_VOTING_VERSION', '1.0.2');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -21,6 +21,8 @@ define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 require_once FEEDBACK_VOTING_PLUGIN_DIR . 'admin/class-my-feedback-plugin-admin.php';
 require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-shortcode.php';
 require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-ajax.php';
+// NEUE DATEI: Für CPT-Unterstützung
+require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-cpt-support.php';
 
 /**
  * Wird beim Aktivieren des Plugins ausgeführt.
@@ -50,7 +52,6 @@ register_activation_hook(__FILE__, 'feedback_voting_activate');
 
 /**
  * Wird beim Deaktivieren des Plugins ausgeführt.
- * Momentan keine weiteren Aktionen nötig.
  */
 function feedback_voting_deactivate() {
     // Ggf. weitere Aufräumarbeiten
@@ -64,6 +65,9 @@ function feedback_voting_init() {
     new My_Feedback_Plugin_Admin();
     new My_Feedback_Plugin_Shortcode();
     new My_Feedback_Plugin_Ajax();
+    
+    // CPT-Unterstützung aktivieren
+    new My_Feedback_Plugin_CPT_Support();
 }
 add_action('plugins_loaded', 'feedback_voting_init');
 
