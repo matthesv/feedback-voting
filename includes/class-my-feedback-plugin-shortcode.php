@@ -47,6 +47,13 @@ class My_Feedback_Plugin_Shortcode {
                     <?php _e('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'); ?>
                 </label>
                 <textarea id="feedback-no-text" rows="3"></textarea>
+                
+                <!-- Neuer Button zum Absenden -->
+                <div class="wp-block-button">
+                    <button class="wp-block-button__link feedback-button feedback-submit-no">
+                        <?php _e('Feedback senden', 'feedback-voting'); ?>
+                    </button>
+                </div>
             </div>
 
             <!-- Danke-Nachricht (anfangs ausgeblendet) -->

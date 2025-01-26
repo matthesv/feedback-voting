@@ -88,6 +88,14 @@ class My_Feedback_Plugin_Admin {
                     + SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END)) DESC
             LIMIT 10
         ");
+
+        // Alle Feedbacks abrufen (inkl. Freitext)
+        $all_feedbacks = $wpdb->get_results("
+            SELECT *
+            FROM $table_name
+            ORDER BY created_at DESC
+            LIMIT 50
+        ");
         ?>
         <div class="wrap">
             <h1><?php _e('Feedback Voting Dashboard', 'feedback-voting'); ?></h1>
@@ -118,6 +126,35 @@ class My_Feedback_Plugin_Admin {
                     <?php else : ?>
                         <tr>
                             <td colspan="3"><?php _e('Keine Daten vorhanden.', 'feedback-voting'); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <hr>
+            <h2><?php _e('Alle Feedback-Einträge', 'feedback-voting'); ?></h2>
+            <table class="widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th><?php _e('Datum', 'feedback-voting'); ?></th>
+                        <th><?php _e('Frage', 'feedback-voting'); ?></th>
+                        <th><?php _e('Vote', 'feedback-voting'); ?></th>
+                        <th><?php _e('Feedback-Text', 'feedback-voting'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($all_feedbacks)) : ?>
+                        <?php foreach ($all_feedbacks as $feedback) : ?>
+                            <tr>
+                                <td><?php echo esc_html($feedback->created_at); ?></td>
+                                <td><?php echo esc_html($feedback->question); ?></td>
+                                <td><?php echo esc_html($feedback->vote); ?></td>
+                                <td><?php echo esc_html($feedback->feedback_text); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="4"><?php _e('Keine Feedbacks vorhanden.', 'feedback-voting'); ?></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

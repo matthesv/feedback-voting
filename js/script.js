@@ -10,25 +10,31 @@ jQuery(function($) {
         var question = container.data('question');
         var vote = $(this).data('vote');
 
-        // Bei "Nein" und aktivierter Option -> Freitextfeld anzeigen
-        if (vote === 'no' && enableFeedbackField === '1') {
+        // Bei "Ja" wird direkt abgesendet
+        if (vote === 'yes') {
+            submitVote(container, question, 'yes', '');
+        }
+        // Bei "Nein" und aktivierter Option -> Freitextfeld einblenden, noch kein Submit
+        else if (vote === 'no' && enableFeedbackField === '1') {
             container.find('.feedback-no-text-container').slideDown();
-        } else {
-            // Sonst direkt Vote abschicken
-            container.find('.feedback-no-text-container').slideUp();
-            submitVote(container, question, vote, '');
+        }
+        else {
+            // Wenn das Freitextfeld deaktiviert ist, dann trotzdem sofort "no" absenden
+            submitVote(container, question, 'no', '');
         }
     });
 
-    // Delegierter Blur-Handler für das Freitextfeld
-    $(document).on('blur', '.feedback-voting-container #feedback-no-text', function() {
+    // Klick-Handler auf den "Feedback senden" Button bei "Nein"
+    $(document).on('click', '.feedback-voting-container .feedback-submit-no', function(e) {
+        e.preventDefault();
+
         var container = $(this).closest('.feedback-voting-container');
         var question = container.data('question');
-        var feedbackText = $(this).val().trim();
+        // Der Benutzer könnte noch nichts eingetippt haben, also darf es leer sein
+        var feedbackText = container.find('#feedback-no-text').val().trim();
 
-        if (feedbackText !== '') {
-            submitVote(container, question, 'no', feedbackText);
-        }
+        // Jetzt wird "no" plus optionaler Freitext abgesendet
+        submitVote(container, question, 'no', feedbackText);
     });
 
     // AJAX-Vote-Funktion
