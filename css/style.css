@@ -2,18 +2,19 @@
   Feedback Voting – Plugin-spezifische Klassen
 ***************************************************************/
 
-/* Container allgemein als Block-Element */
+/* Container allgemein */
 .feedback-voting-container {
+  /* Die Box soll nicht unendlich breit sein -> inline-block */
+  display: inline-block;
+
   border: 1.5px solid var(--primary);
   border-radius: 6rem;
   font-size: 1rem;
   padding: 0.5rem 1rem;
-  display: block;
-  /* Neu: zusätzlicher Abstand nach unten */
   margin-bottom: 1.5rem;
 }
 
-/* Obere Zeile mit Frage + Ja/Nein-Buttons nebeneinander */
+/* Obere Zeile mit Frage + Ja/Nein-Buttons */
 .feedback-voting-top-row {
   display: flex;
   align-items: center;
@@ -46,22 +47,23 @@
   background-color: #005b8d;
 }
 
-/* Bereich für das Freitextfeld bei "Nein" (wird per JS ein/ausgeblendet) */
-.feedback-no-text-container {
-  margin-top: 1rem;
-  display: none; /* default hidden */
-  width: 100%;
+/* Separate Box für "Nein"-Feedback (ohne Rahmen) */
+.feedback-no-text-box {
+  margin-bottom: 1.5rem;
+  padding: 1rem 0; /* optional etwas Padding, aber kein Rahmen */
+  border: none;
+  display: none; /* per Default unsichtbar, JS blendet ein */
 }
 
 /* Label + Textarea */
-.feedback-no-text-container label {
+.feedback-no-text-box label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #1b1c1c;
 }
 
-.feedback-no-text-container textarea {
+.feedback-no-text-box textarea {
   display: block;
   width: 100%;
   box-sizing: border-box;
@@ -69,10 +71,10 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   min-height: 80px;
+  resize: vertical;
 }
 
-/* Mehr Abstand zwischen Textarea und dem Absende-Button */
-.feedback-no-text-container .feedback-submit-no {
+.feedback-no-text-box .feedback-submit-no {
   margin-top: 0.75rem;
 }
 
@@ -81,6 +83,7 @@
   font-weight: 600;
   color: #0073aa;
   margin: 0;
+  margin-bottom: 1rem;
 }
 
 /* Mobile: Nur Icons anzeigen, Text ausblenden */
