@@ -222,21 +222,23 @@ class My_Feedback_Plugin_Admin {
             </table>
 
             <hr>
-            <h2><?php _e('CSV-Export / Datenverwaltung', 'feedback-voting'); ?></h2>
+            <h2><?php _e('CSV-Export', 'feedback-voting'); ?></h2>
+            <!-- Formular NUR für CSV-Export -->
             <form method="post">
-                <?php
-                // Sicherheit für "Alle löschen"
-                wp_nonce_field('feedback_voting_delete_all_action');
-                // Sicherheit für "CSV Export"
-                wp_nonce_field('feedback_voting_export_csv_action');
-                ?>
+                <?php wp_nonce_field('feedback_voting_export_csv_action'); ?>
                 <input
                     type="submit"
                     name="feedback_voting_export_csv"
                     class="button button-secondary"
                     value="<?php esc_attr_e('Alle Feedback-Einträge als CSV herunterladen', 'feedback-voting'); ?>"
                 />
+            </form>
 
+            <hr>
+            <h2><?php _e('Alle Feedback-Einträge löschen', 'feedback-voting'); ?></h2>
+            <!-- Formular NUR für "Alle löschen" -->
+            <form method="post">
+                <?php wp_nonce_field('feedback_voting_delete_all_action'); ?>
                 <input
                     type="submit"
                     name="feedback_voting_delete_all"
