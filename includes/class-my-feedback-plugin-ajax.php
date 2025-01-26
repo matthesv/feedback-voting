@@ -6,13 +6,16 @@ if (!defined('ABSPATH')) {
 class My_Feedback_Plugin_Ajax {
 
     public function __construct() {
-        // AJAX Hooks: für eingeloggte und ausgeloggte Benutzer
+        // AJAX Hooks: Für eingeloggte und ausgeloggte Benutzer
         add_action('wp_ajax_my_feedback_plugin_vote', array($this, 'handle_ajax_vote'));
         add_action('wp_ajax_nopriv_my_feedback_plugin_vote', array($this, 'handle_ajax_vote'));
     }
 
     /**
      * Nimmt per AJAX das Feedback entgegen und speichert es in der Datenbank.
+     * Wir speichern IMMER nur einmal pro Klick.
+     * - "Ja" -> sofort Insert
+     * - "Nein" -> Insert erst, wenn tatsächlich "Feedback senden" geklickt wird
      */
     public function handle_ajax_vote() {
         // Nonce-Check
@@ -40,7 +43,7 @@ class My_Feedback_Plugin_Ajax {
             'created_at'    => current_time('mysql')
         );
 
-        // Format-Array für sicheres Einfügen
+        // Format-Array
         $result = $wpdb->insert(
             $table_name,
             $data,

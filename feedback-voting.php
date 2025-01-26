@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.0.21
+Version:     1.0.22
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,8 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.21');
+define('FEEDBACK_VOTING_VERSION', '1.0.22');
+define('FEEDBACK_VOTING_DB_VERSION', '1.0.1'); // unsere interne DB-Version
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -45,8 +46,11 @@ function feedback_voting_activate() {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 
-    // Standard-Option für das Freitextfeld bei "Nein"
+    // Standard-Option für das Freitextfeld bei "Nein" (1 = aktiviert)
     add_option('feedback_voting_enable_feedback_field', '1');
+
+    // DB-Versionsinfo abspeichern
+    update_option('feedback_voting_db_version', FEEDBACK_VOTING_DB_VERSION);
 }
 register_activation_hook(__FILE__, 'feedback_voting_activate');
 
@@ -59,12 +63,24 @@ function feedback_voting_deactivate() {
 register_deactivation_hook(__FILE__, 'feedback_voting_deactivate');
 
 /**
+ * Prüft bei jedem Laden, ob wir ein DB-Update durchführen müssen.
+ */
+function feedback_voting_maybe_update_db() {
+    $installed_version = get_option('feedback_voting_db_version', '0.0.0');
+    if (version_compare($installed_version, FEEDBACK_VOTING_DB_VERSION, '<')) {
+        // Falls ein Update nötig ist, unsere Aktivierungsroutine aufrufen:
+        feedback_voting_activate();
+    }
+}
+
+/**
  * Initialisiert die Plugin-Klassen und führt ggf. ein Datenbank-Update durch.
  */
 function feedback_voting_init() {
-    // Beim normalen Laden: Noch einmal dbDelta ausführen, um neue Spalten anzulegen.
-    feedback_voting_activate();
+    // DB ggfs. aktualisieren
+    feedback_voting_maybe_update_db();
 
+    // Klassen initialisieren
     new My_Feedback_Plugin_Admin();
     new My_Feedback_Plugin_Shortcode();
     new My_Feedback_Plugin_Ajax();

@@ -17,7 +17,7 @@
   margin-bottom: 1.5rem;
 }
 
-/* Frage-Text (nicht mehr fett) */
+/* Frage-Text */
 .feedback-question {
   margin: 0; 
   font-weight: normal; /* war zuvor 600 */
@@ -67,14 +67,6 @@
   border-radius: 4px;
   min-height: 80px;
 }
-
-/* Ursprünglich wurde das ganze .feedback-voting-container versteckt.
-   Jetzt NICHT mehr ausblenden, sondern nur die Buttons ersetzen. */
-/*
-.feedback-voting-container.feedback-submitted {
-  display: none !important;
-}
-*/
 
 /* Optionales Styling für den Dankes-Text */
 .feedback-thankyou {

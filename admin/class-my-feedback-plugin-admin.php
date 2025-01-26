@@ -10,8 +10,7 @@ class My_Feedback_Plugin_Admin {
         add_action('admin_init', array($this, 'register_settings'));
 
         /**
-         * Neue Hooks für Export und Löschen:
-         * Dadurch wird die Logik über admin-post.php abgewickelt.
+         * Hooks für Export und Löschen
          */
         add_action('admin_post_feedback_voting_export_csv', array($this, 'handle_export_csv'));
         add_action('admin_post_feedback_voting_delete_all', array($this, 'handle_delete_all'));
@@ -33,7 +32,7 @@ class My_Feedback_Plugin_Admin {
     }
 
     /**
-     * Registriert die Plugin-Einstellungen im Bereich "Einstellungen".
+     * Registriert die Plugin-Einstellungen.
      */
     public function register_settings() {
         register_setting('feedback_voting_settings_group', 'feedback_voting_enable_feedback_field');
@@ -74,17 +73,12 @@ class My_Feedback_Plugin_Admin {
     }
 
     /**
-     * Admin-Seite (Dashboard) aufbauen. 
-     * Hinweis: Der CSV-Export und das Löschen aller Einträge werden nun über separate Methoden abgewickelt.
+     * Admin-Seite (Dashboard) aufbauen.
      */
     public function render_admin_page() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'feedback_votes';
 
-        /**
-         * Falls man nach "Löschen" zurückgeleitet wurde, kann man per GET-Parameter
-         * eine Meldung anzeigen:
-         */
         if (isset($_GET['feedback_voting_deleted']) && $_GET['feedback_voting_deleted'] === '1') {
             echo '<div class="updated"><p>' . __('Alle Feedback-Einträge wurden gelöscht.', 'feedback-voting') . '</p></div>';
         }
@@ -93,7 +87,7 @@ class My_Feedback_Plugin_Admin {
         $total_yes = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE vote = 'yes'");
         $total_no  = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE vote = 'no'");
 
-        // Top Fragen (die 10 meistbewerteten)
+        // Top-Fragen (die 10 meistbewerteten)
         $results = $wpdb->get_results("
             SELECT question,
                    SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END) AS total_yes,
@@ -235,10 +229,9 @@ class My_Feedback_Plugin_Admin {
 
             <hr>
             <h2><?php _e('CSV-Export', 'feedback-voting'); ?></h2>
-            <!-- Formular für CSV-Export: via admin-post.php -->
+            <!-- Formular für CSV-Export -->
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('feedback_voting_export_csv_action'); ?>
-                <!-- Der action-Parameter sagt WP, welche Funktion aufgerufen wird -->
                 <input type="hidden" name="action" value="feedback_voting_export_csv">
                 <input
                     type="submit"
@@ -250,7 +243,6 @@ class My_Feedback_Plugin_Admin {
 
             <hr>
             <h2><?php _e('Alle Feedback-Einträge löschen', 'feedback-voting'); ?></h2>
-            <!-- Formular für "Alle löschen": via admin-post.php -->
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('feedback_voting_delete_all_action'); ?>
                 <input type="hidden" name="action" value="feedback_voting_delete_all">
@@ -277,15 +269,12 @@ class My_Feedback_Plugin_Admin {
     }
 
     /**
-     * Nimmt den POST-Request für den CSV-Export entgegen.
-     * Wird über den Hook 'admin_post_feedback_voting_export_csv' aufgerufen.
+     * CSV-Export-Handler
      */
     public function handle_export_csv() {
-        // Nur Administratoren oder User mit manage_options
         if (!current_user_can('manage_options')) {
             wp_die(__('Du hast keine Berechtigung, dies zu tun.'), 403);
         }
-        // Nonce-Check
         check_admin_referer('feedback_voting_export_csv_action');
 
         global $wpdb;
@@ -293,11 +282,10 @@ class My_Feedback_Plugin_Admin {
 
         $filename = 'feedback_voting_' . date('Y-m-d_H-i-s') . '.csv';
 
-        // CSV-Header senden
+        // CSV-Header
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . $filename);
 
-        // Output-Stream öffnen
         $output = fopen('php://output', 'w');
 
         // Spaltenkopf
@@ -309,7 +297,7 @@ class My_Feedback_Plugin_Admin {
             __('Shortcode-Location (post_id)', 'feedback-voting')
         ));
 
-        // Rows aus DB auslesen
+        // Rows
         $rows = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
         if (!empty($rows)) {
             foreach ($rows as $r) {
@@ -323,12 +311,11 @@ class My_Feedback_Plugin_Admin {
             }
         }
         fclose($output);
-        exit; // Wichtig, um kein zusätzliches HTML o.Ä. auszugeben
+        exit;
     }
 
     /**
-     * Nimmt den POST-Request für "Alle löschen" entgegen.
-     * Wird über den Hook 'admin_post_feedback_voting_delete_all' aufgerufen.
+     * Handler für "Alle löschen".
      */
     public function handle_delete_all() {
         if (!current_user_can('manage_options')) {
@@ -340,7 +327,6 @@ class My_Feedback_Plugin_Admin {
         $table_name = $wpdb->prefix . 'feedback_votes';
         $wpdb->query("TRUNCATE TABLE $table_name");
 
-        // Zurückleiten auf unsere Admin-Seite + "Erfolgs-Flag"
         wp_redirect(add_query_arg(
             array('feedback_voting_deleted' => '1'),
             admin_url('admin.php?page=feedback-voting')

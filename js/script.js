@@ -15,12 +15,12 @@ jQuery(function($) {
         if (vote === 'yes') {
             submitVote(container, question, 'yes', '', postId);
         }
-        // Bei "Nein" und Option aktiv -> Freitextfeld zuerst einblenden
+        // Bei "Nein" + Option aktiv -> Freitextfeld erst einblenden
         else if (vote === 'no' && enableFeedbackField === '1') {
             container.find('.feedback-no-text-container').slideDown();
         }
         else {
-            // Wenn Freitextfeld deaktiviert ist, sofort "no" absenden
+            // Wenn Freitextfeld deaktiviert -> sofort "no" absenden
             submitVote(container, question, 'no', '', postId);
         }
     });
@@ -34,7 +34,7 @@ jQuery(function($) {
         var postId = container.data('postid') || 0;
         var feedbackText = container.find('#feedback-no-text').val().trim();
 
-        // Jetzt "no" + Freitext speichern
+        // "no" + Freitext speichern
         submitVote(container, question, 'no', feedbackText, postId);
     });
 
@@ -57,10 +57,8 @@ jQuery(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    // Anstatt die Box auszublenden, entfernen wir Buttons & Frage
-                    // und zeigen stattdessen unseren Dankes-Text an.
+                    // Buttons & Frage entfernen, stattdessen Danke-Text einblenden
                     container.find('.feedback-question, .feedback-button, .feedback-no-text-container').remove();
-
                     container.append(
                         '<p class="feedback-thankyou">'+
                         'Vielen Dank für Ihr Feedback! Jede Antwort hilft uns, uns zu verbessern.'+
