@@ -8,7 +8,7 @@
   border-radius: 6px;
   padding: 16px;
   max-width: 480px;
-  margin: 20px auto;         /* Zentriert die Box selbst innerhalb der Seite */
+  margin: 10px auto;         /* Zentriert die Box selbst innerhalb der Seite */
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   text-align: center;        /* Zentriert den Inhalt in der Box */
 }
@@ -22,7 +22,7 @@
 
 /* JA/NEIN-Buttons im WP-Block-Stil */
 .feedback-button {
-  background-color: #0073aa;
+  background-color: #00457c
   color: #fff;
   border: none;
   border-radius: 9999px; /* pillenförmiger Stil */
