@@ -53,13 +53,16 @@ class My_Feedback_Plugin_Admin {
     public function feedback_field_render() {
         $value = get_option('feedback_voting_enable_feedback_field', '1');
         ?>
-        <input
-            type="checkbox"
-            name="feedback_voting_enable_feedback_field"
-            value="1"
-            <?php checked($value, '1'); ?>
-        />
-        <span><?php _e('Aktivieren, damit ein Freitext-Feld erscheint, wenn der Benutzer "Nein" wählt.', 'feedback-voting'); ?></span>
+        <label for="feedback_voting_enable_feedback_field">
+            <input
+                type="checkbox"
+                id="feedback_voting_enable_feedback_field"
+                name="feedback_voting_enable_feedback_field"
+                value="1"
+                <?php checked($value, '1'); ?>
+            />
+            <?php _e('Aktivieren, damit ein Freitext-Feld erscheint, wenn der Benutzer "Nein" wählt.', 'feedback-voting'); ?>
+        </label>
         <?php
     }
 
@@ -81,7 +84,8 @@ class My_Feedback_Plugin_Admin {
                    SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END) AS total_no
             FROM $table_name
             GROUP BY question
-            ORDER BY (SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END) + SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END)) DESC
+            ORDER BY (SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END)
+                    + SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END)) DESC
             LIMIT 10
         ");
         ?>

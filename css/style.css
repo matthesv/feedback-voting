@@ -1,32 +1,41 @@
+/***************************************************************
+  Feedback Voting - Plugin-spezifische Klassen
+***************************************************************/
+
+/* Container */
 .feedback-voting-container {
     margin: 20px 0;
     border: 1px solid #ddd;
     padding: 20px;
-    max-width: 400px;
+    max-width: 500px;
     background: #f9f9f9;
     border-radius: 4px;
 }
 
+/* Frage-Text */
 .feedback-question {
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
 }
 
+/* Buttons: Wir nutzen zusätzlich .wp-block-button__link */
 .feedback-button {
-    background-color: #0073AA;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    margin-right: 8px;
     cursor: pointer;
-    border-radius: 4px;
+    border: none;
+    margin-right: 8px;
     font-size: 14px;
+    /* Da .wp-block-button__link üblicherweise gerundete Kanten hat, 
+       können wir optional die Ecken noch mal anpassen: */
+    border-radius: 9999px;
+    transition: background-color 0.15s ease-in-out;
 }
 
+/* Ja-/Nein-Button: Hover/Fokus-Stil */
 .feedback-button:hover {
-    background-color: #006799;
+    opacity: 0.85;
 }
 
+/* Freitextcontainer bei "Nein" */
 .feedback-no-text-container {
     margin-top: 10px;
 }
@@ -41,10 +50,12 @@
     width: 100%;
     box-sizing: border-box;
     resize: vertical;
+    padding: 8px;
 }
 
+/* Danke-Nachricht */
 .feedback-thankyou-message {
-    margin-top: 10px;
+    margin-top: 16px;
     font-style: italic;
     color: #2c6f00;
 }

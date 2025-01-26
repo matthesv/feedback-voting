@@ -15,6 +15,7 @@ class My_Feedback_Plugin_Ajax {
      * Nimmt per AJAX das Feedback entgegen und speichert es in der Datenbank.
      */
     public function handle_ajax_vote() {
+        check_ajax_referer( 'feedback_nonce_action', 'security' ); // Optional: Zusätzlicher Nonce-Check
         global $wpdb;
         $table_name = $wpdb->prefix . 'feedback_votes';
 

@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.5
+Version:     1.0.6
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.5');
+define('FEEDBACK_VOTING_VERSION', '1.0.6');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -50,7 +50,6 @@ register_activation_hook(__FILE__, 'feedback_voting_activate');
 
 /**
  * Wird beim Deaktivieren des Plugins ausgeführt.
- * Momentan keine weiteren Aktionen nötig.
  */
 function feedback_voting_deactivate() {
     // Ggf. weitere Aufräumarbeiten
@@ -95,8 +94,8 @@ function feedback_voting_enqueue_scripts() {
 }
 add_action('wp_enqueue_scripts', 'feedback_voting_enqueue_scripts');
 
-// Plugin Update Checker laden (GitHub)
-require FEEDBACK_VOTING_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
+// Plugin Update Checker laden (GitHub) - falls erwünscht, kann man das beibehalten
+require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 $myUpdateChecker = PucFactory::buildUpdateChecker(

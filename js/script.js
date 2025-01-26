@@ -44,6 +44,7 @@ jQuery(function($) {
                 question: question,
                 vote: vote,
                 feedback: feedback
+                // 'security': feedbackVoting.nonce, // Falls du mit Nonce arbeiten willst
             },
             success: function(response) {
                 if (response.success) {
