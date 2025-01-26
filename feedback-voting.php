@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.0
+Version:     1.0.1
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -94,3 +94,14 @@ function feedback_voting_enqueue_scripts() {
     ));
 }
 add_action('wp_enqueue_scripts', 'feedback_voting_enqueue_scripts');
+
+// Plugin Update Checker laden (GitHub)
+require LFMV_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$myUpdateChecker = PucFactory::buildUpdateChecker(
+    'https://github.com/matthesv/feedback-voting/',
+    __FILE__,
+    'feedback-voting'
+);
+$myUpdateChecker->setBranch('main');
