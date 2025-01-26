@@ -8,6 +8,13 @@ class My_Feedback_Plugin_Admin {
     public function __construct() {
         add_action('admin_menu', array($this, 'register_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
+
+        /**
+         * Neue Hooks für Export und Löschen:
+         * Dadurch wird die Logik über admin-post.php abgewickelt.
+         */
+        add_action('admin_post_feedback_voting_export_csv', array($this, 'handle_export_csv'));
+        add_action('admin_post_feedback_voting_delete_all', array($this, 'handle_delete_all'));
     }
 
     /**
@@ -67,63 +74,26 @@ class My_Feedback_Plugin_Admin {
     }
 
     /**
-     * Baut die eigentliche Admin-Seite (Dashboard) auf.
-     * Hier werden außerdem CSV-Export und "Alle löschen"-Funktion angeboten.
+     * Admin-Seite (Dashboard) aufbauen. 
+     * Hinweis: Der CSV-Export und das Löschen aller Einträge werden nun über separate Methoden abgewickelt.
      */
     public function render_admin_page() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'feedback_votes';
 
-        // Falls "Alle löschen" geklickt wurde
-        if (isset($_POST['feedback_voting_delete_all'])) {
-            check_admin_referer('feedback_voting_delete_all_action'); // Sicherheit
-            $wpdb->query("TRUNCATE TABLE $table_name");
+        /**
+         * Falls man nach "Löschen" zurückgeleitet wurde, kann man per GET-Parameter
+         * eine Meldung anzeigen:
+         */
+        if (isset($_GET['feedback_voting_deleted']) && $_GET['feedback_voting_deleted'] === '1') {
             echo '<div class="updated"><p>' . __('Alle Feedback-Einträge wurden gelöscht.', 'feedback-voting') . '</p></div>';
-        }
-
-        // Falls "CSV Export" geklickt wurde
-        if (isset($_POST['feedback_voting_export_csv'])) {
-            check_admin_referer('feedback_voting_export_csv_action'); // Sicherheit
-
-            // Kopfzeilen für die CSV-Ausgabe
-            $filename = 'feedback_voting_' . date('Y-m-d_H-i-s') . '.csv';
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=' . $filename);
-
-            // Ausgabe-Stream öffnen
-            $output = fopen('php://output', 'w');
-
-            // Spaltenkopf
-            fputcsv($output, array(
-                __('Datum', 'feedback-voting'),
-                __('Frage', 'feedback-voting'),
-                __('Vote', 'feedback-voting'),
-                __('Feedback-Text', 'feedback-voting'),
-                __('Shortcode-Location (post_id)', 'feedback-voting')
-            ));
-
-            // Alle Datensätze
-            $rows = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
-            if (!empty($rows)) {
-                foreach ($rows as $r) {
-                    fputcsv($output, array(
-                        $r->created_at,
-                        $r->question,
-                        $r->vote,
-                        $r->feedback_text,
-                        $r->post_id
-                    ));
-                }
-            }
-            fclose($output);
-            exit; // WICHTIG: Damit kein zusätzliches HTML mehr ausgegeben wird
         }
 
         // Gesamtanzahl Ja/Nein
         $total_yes = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE vote = 'yes'");
         $total_no  = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE vote = 'no'");
 
-        // Top Fragen
+        // Top Fragen (die 10 meistbewerteten)
         $results = $wpdb->get_results("
             SELECT question,
                    SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END) AS total_yes,
@@ -135,12 +105,11 @@ class My_Feedback_Plugin_Admin {
             LIMIT 10
         ");
 
-        // --- Filter für Shortcode-Location (post_id) ---
-        // Prüfen, ob ein Filter aktiv ist:
+        // Filter für Shortcode-Location (post_id)
         $selected_post_id = isset($_GET['post_id_filter']) ? intval($_GET['post_id_filter']) : 0;
 
         if ($selected_post_id > 0) {
-            // Nur bestimmte post_id abrufen
+            // Nur bestimmte post_id
             $all_feedbacks = $wpdb->get_results($wpdb->prepare("
                 SELECT *
                 FROM $table_name
@@ -149,7 +118,7 @@ class My_Feedback_Plugin_Admin {
                 LIMIT 150
             ", $selected_post_id));
         } else {
-            // Alle (letzte 150)
+            // Alle (max. 150 Einträge)
             $all_feedbacks = $wpdb->get_results("
                 SELECT *
                 FROM $table_name
@@ -157,7 +126,6 @@ class My_Feedback_Plugin_Admin {
                 LIMIT 150
             ");
         }
-
         ?>
         <div class="wrap">
             <h1><?php _e('Feedback Voting Dashboard', 'feedback-voting'); ?></h1>
@@ -177,26 +145,24 @@ class My_Feedback_Plugin_Admin {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($results)) : ?>
-                        <?php foreach ($results as $row) : ?>
-                            <tr>
-                                <td><?php echo esc_html($row->question); ?></td>
-                                <td><?php echo intval($row->total_yes); ?></td>
-                                <td><?php echo intval($row->total_no); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else : ?>
+                <?php if (!empty($results)) : ?>
+                    <?php foreach ($results as $row) : ?>
                         <tr>
-                            <td colspan="3"><?php _e('Keine Daten vorhanden.', 'feedback-voting'); ?></td>
+                            <td><?php echo esc_html($row->question); ?></td>
+                            <td><?php echo intval($row->total_yes); ?></td>
+                            <td><?php echo intval($row->total_no); ?></td>
                         </tr>
-                    <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <tr>
+                        <td colspan="3"><?php _e('Keine Daten vorhanden.', 'feedback-voting'); ?></td>
+                    </tr>
+                <?php endif; ?>
                 </tbody>
             </table>
 
             <hr>
-            <h2>
-                <?php _e('Alle Feedback-Einträge (letzte 150)', 'feedback-voting'); ?>
-            </h2>
+            <h2><?php _e('Alle Feedback-Einträge (letzte 150)', 'feedback-voting'); ?></h2>
 
             <!-- Filter für Shortcode-Location -->
             <form method="get" style="margin-bottom: 1em;">
@@ -236,42 +202,44 @@ class My_Feedback_Plugin_Admin {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($all_feedbacks)) : ?>
-                        <?php foreach ($all_feedbacks as $feedback) :
-                            $post_title = get_the_title($feedback->post_id);
-                            $post_link  = get_permalink($feedback->post_id);
-                            ?>
-                            <tr>
-                                <td><?php echo esc_html($feedback->created_at); ?></td>
-                                <td><?php echo esc_html($feedback->question); ?></td>
-                                <td><?php echo esc_html($feedback->vote); ?></td>
-                                <td><?php echo esc_html($feedback->feedback_text); ?></td>
-                                <td>
-                                    <?php if (!empty($post_title)) : ?>
-                                        <a href="<?php echo esc_url($post_link); ?>" target="_blank">
-                                            <?php echo esc_html($post_title); ?>
-                                        </a>
-                                        <br>
-                                        <small><?php echo 'ID: ' . intval($feedback->post_id); ?></small>
-                                    <?php else : ?>
-                                        <em><?php _e('Keine Zuordnung', 'feedback-voting'); ?></em>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else : ?>
+                <?php if (!empty($all_feedbacks)) : ?>
+                    <?php foreach ($all_feedbacks as $feedback) :
+                        $post_title = get_the_title($feedback->post_id);
+                        $post_link  = get_permalink($feedback->post_id);
+                        ?>
                         <tr>
-                            <td colspan="5"><?php _e('Keine Feedbacks vorhanden.', 'feedback-voting'); ?></td>
+                            <td><?php echo esc_html($feedback->created_at); ?></td>
+                            <td><?php echo esc_html($feedback->question); ?></td>
+                            <td><?php echo esc_html($feedback->vote); ?></td>
+                            <td><?php echo esc_html($feedback->feedback_text); ?></td>
+                            <td>
+                                <?php if (!empty($post_title)) : ?>
+                                    <a href="<?php echo esc_url($post_link); ?>" target="_blank">
+                                        <?php echo esc_html($post_title); ?>
+                                    </a>
+                                    <br>
+                                    <small><?php echo 'ID: ' . intval($feedback->post_id); ?></small>
+                                <?php else : ?>
+                                    <em><?php _e('Keine Zuordnung', 'feedback-voting'); ?></em>
+                                <?php endif; ?>
+                            </td>
                         </tr>
-                    <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <tr>
+                        <td colspan="5"><?php _e('Keine Feedbacks vorhanden.', 'feedback-voting'); ?></td>
+                    </tr>
+                <?php endif; ?>
                 </tbody>
             </table>
 
             <hr>
             <h2><?php _e('CSV-Export', 'feedback-voting'); ?></h2>
-            <!-- Formular NUR für CSV-Export -->
-            <form method="post">
+            <!-- Formular für CSV-Export: via admin-post.php -->
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('feedback_voting_export_csv_action'); ?>
+                <!-- Der action-Parameter sagt WP, welche Funktion aufgerufen wird -->
+                <input type="hidden" name="action" value="feedback_voting_export_csv">
                 <input
                     type="submit"
                     name="feedback_voting_export_csv"
@@ -282,9 +250,10 @@ class My_Feedback_Plugin_Admin {
 
             <hr>
             <h2><?php _e('Alle Feedback-Einträge löschen', 'feedback-voting'); ?></h2>
-            <!-- Formular NUR für "Alle löschen" -->
-            <form method="post">
+            <!-- Formular für "Alle löschen": via admin-post.php -->
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('feedback_voting_delete_all_action'); ?>
+                <input type="hidden" name="action" value="feedback_voting_delete_all">
                 <input
                     type="submit"
                     name="feedback_voting_delete_all"
@@ -305,5 +274,77 @@ class My_Feedback_Plugin_Admin {
             </form>
         </div>
         <?php
+    }
+
+    /**
+     * Nimmt den POST-Request für den CSV-Export entgegen.
+     * Wird über den Hook 'admin_post_feedback_voting_export_csv' aufgerufen.
+     */
+    public function handle_export_csv() {
+        // Nur Administratoren oder User mit manage_options
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Du hast keine Berechtigung, dies zu tun.'), 403);
+        }
+        // Nonce-Check
+        check_admin_referer('feedback_voting_export_csv_action');
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'feedback_votes';
+
+        $filename = 'feedback_voting_' . date('Y-m-d_H-i-s') . '.csv';
+
+        // CSV-Header senden
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=' . $filename);
+
+        // Output-Stream öffnen
+        $output = fopen('php://output', 'w');
+
+        // Spaltenkopf
+        fputcsv($output, array(
+            __('Datum', 'feedback-voting'),
+            __('Frage', 'feedback-voting'),
+            __('Vote', 'feedback-voting'),
+            __('Feedback-Text', 'feedback-voting'),
+            __('Shortcode-Location (post_id)', 'feedback-voting')
+        ));
+
+        // Rows aus DB auslesen
+        $rows = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
+        if (!empty($rows)) {
+            foreach ($rows as $r) {
+                fputcsv($output, array(
+                    $r->created_at,
+                    $r->question,
+                    $r->vote,
+                    $r->feedback_text,
+                    $r->post_id
+                ));
+            }
+        }
+        fclose($output);
+        exit; // Wichtig, um kein zusätzliches HTML o.Ä. auszugeben
+    }
+
+    /**
+     * Nimmt den POST-Request für "Alle löschen" entgegen.
+     * Wird über den Hook 'admin_post_feedback_voting_delete_all' aufgerufen.
+     */
+    public function handle_delete_all() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Du hast keine Berechtigung, dies zu tun.'), 403);
+        }
+        check_admin_referer('feedback_voting_delete_all_action');
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'feedback_votes';
+        $wpdb->query("TRUNCATE TABLE $table_name");
+
+        // Zurückleiten auf unsere Admin-Seite + "Erfolgs-Flag"
+        wp_redirect(add_query_arg(
+            array('feedback_voting_deleted' => '1'),
+            admin_url('admin.php?page=feedback-voting')
+        ));
+        exit;
     }
 }

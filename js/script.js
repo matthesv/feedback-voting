@@ -63,7 +63,7 @@ jQuery(function($) {
 
                     container.append(
                         '<p class="feedback-thankyou">'+
-                        'Danke für\'s Feedback! Jede Antwort hilft uns dabei besser zu werden.'+
+                        'Vielen Dank für Ihr Feedback! Jede Antwort hilft uns, uns zu verbessern.'+
                         '</p>'
                     );
                 } else {
