@@ -55,7 +55,12 @@ class My_Feedback_Plugin_Shortcode {
             <label for="feedback-no-text">
                 <?php _e('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'); ?>
             </label>
-            <textarea class="feedback-no-text" id="feedback-no-text" rows="3"></textarea>
+            <textarea
+            class="feedback-no-text"
+            id="feedback-no-text"
+            rows="3"
+            placeholder="<?php esc_attr_e('Hier können Sie uns Ihre Anregungen mitteilen (optional)', 'feedback-voting'); ?>"
+            ></textarea>
 
             <button class="feedback-button feedback-submit-no">
                 <span class="button-text"><?php _e('Feedback senden', 'feedback-voting'); ?></span>
