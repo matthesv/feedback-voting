@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.4
+Version:     1.0.5
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.4');
+define('FEEDBACK_VOTING_VERSION', '1.0.5');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -89,8 +89,8 @@ function feedback_voting_enqueue_scripts() {
 
     // Übergibt PHP-Daten an das JavaScript (AJAX-URL, Plugin-Einstellungen etc.)
     wp_localize_script('feedback-voting-script', 'feedbackVoting', array(
-        'ajaxUrl'               => admin_url('admin-ajax.php'),
-        'enableFeedbackField'   => get_option('feedback_voting_enable_feedback_field', '1')
+        'ajaxUrl'             => admin_url('admin-ajax.php'),
+        'enableFeedbackField' => get_option('feedback_voting_enable_feedback_field', '1'),
     ));
 }
 add_action('wp_enqueue_scripts', 'feedback_voting_enqueue_scripts');

@@ -29,10 +29,10 @@ class My_Feedback_Plugin_Ajax {
         }
 
         $data = array(
-            'question'     => $question,
-            'vote'         => $vote,
-            'feedback_text'=> $feedback,
-            'created_at'   => current_time('mysql')
+            'question'      => $question,
+            'vote'          => $vote,
+            'feedback_text' => $feedback,
+            'created_at'    => current_time('mysql')
         );
 
         $result = $wpdb->insert($table_name, $data);

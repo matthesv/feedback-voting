@@ -1,50 +1,65 @@
-<?php
-if (!defined('ABSPATH')) {
-    exit; // Sicherheitsabbruch
-}
+jQuery(function($) {
+    // Globale Einstellung, ob das Freitextfeld bei "Nein" aktiviert ist
+    var enableFeedbackField = feedbackVoting.enableFeedbackField;
 
-class My_Feedback_Plugin_Ajax {
+    // Delegierter Klick-Handler für alle "Ja/Nein"-Buttons
+    $(document).on('click', '.feedback-voting-container .feedback-button', function(e) {
+        e.preventDefault();
 
-    public function __construct() {
-        // AJAX Hooks
-        add_action('wp_ajax_my_feedback_plugin_vote', array($this, 'handle_ajax_vote'));
-        add_action('wp_ajax_nopriv_my_feedback_plugin_vote', array($this, 'handle_ajax_vote'));
-    }
+        var container = $(this).closest('.feedback-voting-container');
+        var question = container.data('question');
+        var vote = $(this).data('vote');
 
-    /**
-     * Nimmt per AJAX das Feedback entgegen und speichert es in der Datenbank.
-     */
-    public function handle_ajax_vote() {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'feedback_votes';
-
-        $question = isset($_POST['question']) ? sanitize_text_field($_POST['question']) : '';
-        $vote     = isset($_POST['vote']) ? sanitize_text_field($_POST['vote']) : '';
-        $feedback = isset($_POST['feedback']) ? sanitize_textarea_field($_POST['feedback']) : '';
-
-        if (empty($question) || empty($vote)) {
-            wp_send_json_error(array(
-                'message' => __('Ungültige Daten übermittelt.', 'feedback-voting')
-            ));
-        }
-
-        $data = array(
-            'question'     => $question,
-            'vote'         => $vote,
-            'feedback_text'=> $feedback,
-            'created_at'   => current_time('mysql')
-        );
-
-        $result = $wpdb->insert($table_name, $data);
-
-        if ($result === false) {
-            wp_send_json_error(array(
-                'message' => __('Fehler beim Speichern der Bewertung.', 'feedback-voting')
-            ));
+        // Bei "Nein" und aktivierter Option -> Freitextfeld anzeigen
+        if (vote === 'no' && enableFeedbackField === '1') {
+            container.find('.feedback-no-text-container').slideDown();
         } else {
-            wp_send_json_success(array(
-                'message' => __('Bewertung erfolgreich gespeichert.', 'feedback-voting')
-            ));
+            // Sonst direkt Vote abschicken
+            container.find('.feedback-no-text-container').slideUp();
+            submitVote(container, question, vote, '');
         }
+    });
+
+    // Delegierter Blur-Handler für das Freitextfeld
+    $(document).on('blur', '.feedback-voting-container #feedback-no-text', function() {
+        var container = $(this).closest('.feedback-voting-container');
+        var question = container.data('question');
+        var feedbackText = $(this).val().trim();
+
+        if (feedbackText !== '') {
+            submitVote(container, question, 'no', feedbackText);
+        }
+    });
+
+    // AJAX-Vote-Funktion
+    function submitVote(container, question, vote, feedback) {
+        // Buttons deaktivieren, damit nicht mehrmals geklickt wird
+        container.find('.feedback-button').prop('disabled', true);
+
+        $.ajax({
+            url: feedbackVoting.ajaxUrl,
+            method: 'POST',
+            data: {
+                action: 'my_feedback_plugin_vote',
+                question: question,
+                vote: vote,
+                feedback: feedback
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Danke-Nachricht einblenden
+                    container.find('.feedback-thankyou-message').slideDown();
+                } else {
+                    // Bei Fehler Buttons wieder aktivieren
+                    container.find('.feedback-button').prop('disabled', false);
+                    alert(response.data.message);
+                }
+            },
+            error: function() {
+                // Bei Netzwerkfehler Buttons wieder aktivieren
+                container.find('.feedback-button').prop('disabled', false);
+                alert('Es ist ein Fehler beim Senden der Bewertung aufgetreten.');
+            }
+        });
     }
-}
+});
