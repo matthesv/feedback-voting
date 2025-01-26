@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.11
+Version:     1.0.12
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.11');
+define('FEEDBACK_VOTING_VERSION', '1.0.12');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -24,18 +24,20 @@ require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-aja
 
 /**
  * Wird beim Aktivieren des Plugins ausgeführt.
- * Legt eine eigene Datenbank-Tabelle an und setzt Standard-Einstellungen.
+ * Legt (bzw. aktualisiert) eine eigene Datenbank-Tabelle an und setzt Standard-Einstellungen.
  */
 function feedback_voting_activate() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'feedback_votes';
     $charset_collate = $wpdb->get_charset_collate();
 
+    // Neue Spalte "post_id" hinzugefügt.
     $sql = "CREATE TABLE IF NOT EXISTS $table_name (
         id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         question TEXT NOT NULL,
         vote VARCHAR(10) NOT NULL,
         feedback_text TEXT NULL,
+        post_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
         PRIMARY KEY (id)
     ) $charset_collate;";
@@ -57,9 +59,13 @@ function feedback_voting_deactivate() {
 register_deactivation_hook(__FILE__, 'feedback_voting_deactivate');
 
 /**
- * Initialisiert die Plugin-Klassen.
+ * Initialisiert die Plugin-Klassen und aktualisiert ggf. die Datenbankstruktur.
  */
 function feedback_voting_init() {
+    // Führt beim "normalen" Laden von WordPress noch einmal dbDelta aus,
+    // damit bei Plugin-Updates neue Spalten angelegt werden.
+    feedback_voting_activate();
+
     new My_Feedback_Plugin_Admin();
     new My_Feedback_Plugin_Shortcode();
     new My_Feedback_Plugin_Ajax();
@@ -71,10 +77,7 @@ add_action('plugins_loaded', 'feedback_voting_init');
  */
 function feedback_voting_enqueue_scripts() {
 
-    // NEU: Diese beiden Zeilen stellen sicher, dass
-    // - Dashicons für Daumen-Hoch/Runter-Icons
-    // - WP-Block-Stile für .wp-block-button & Co.
-    // auch im Frontend bei Gästen geladen werden:
+    // Dashicons und WP-Block-Stile
     wp_enqueue_style('dashicons');
     wp_enqueue_style('wp-block-library');
 
@@ -86,7 +89,7 @@ function feedback_voting_enqueue_scripts() {
         'feedback-voting-style',
         FEEDBACK_VOTING_PLUGIN_URL . 'css/style.css',
         array(),
-        $css_version, // DateTime-Hash als Versionsstring
+        $css_version,
         'all'
     );
 
@@ -94,7 +97,7 @@ function feedback_voting_enqueue_scripts() {
         'feedback-voting-script',
         FEEDBACK_VOTING_PLUGIN_URL . 'js/script.js',
         array('jquery'),
-        $js_version, // DateTime-Hash als Versionsstring
+        $js_version,
         true
     );
 

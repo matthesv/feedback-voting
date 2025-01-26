@@ -24,6 +24,8 @@ class My_Feedback_Plugin_Ajax {
         $question = isset($_POST['question']) ? sanitize_text_field($_POST['question']) : '';
         $vote     = isset($_POST['vote']) ? sanitize_text_field($_POST['vote']) : '';
         $feedback = isset($_POST['feedback']) ? sanitize_textarea_field($_POST['feedback']) : '';
+        // Neu: post_id übernehmen
+        $post_id  = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
 
         if (empty($question) || empty($vote)) {
             wp_send_json_error(array(
@@ -35,6 +37,7 @@ class My_Feedback_Plugin_Ajax {
             'question'      => $question,
             'vote'          => $vote,
             'feedback_text' => $feedback,
+            'post_id'       => $post_id,
             'created_at'    => current_time('mysql')
         );
 

@@ -11,6 +11,7 @@ class My_Feedback_Plugin_Shortcode {
 
     /**
      * Rendert den Shortcode [feedback_voting question="..."]
+     * Neu: Ermittelt den aktuellen Post, um post_id im Container zu speichern.
      */
     public function render_shortcode($atts) {
         // Standardwerte festlegen
@@ -20,9 +21,15 @@ class My_Feedback_Plugin_Shortcode {
 
         $question = $atts['question'];
 
+        // Post-ID ermitteln (falls im Loop / auf einer Seite)
+        global $post;
+        $post_id = (is_object($post) && isset($post->ID)) ? $post->ID : 0;
+
         ob_start();
         ?>
-        <div class="feedback-voting-container wp-block-group" data-question="<?php echo esc_attr($question); ?>">
+        <div class="feedback-voting-container wp-block-group"
+             data-question="<?php echo esc_attr($question); ?>"
+             data-postid="<?php echo esc_attr($post_id); ?>">
             <p class="feedback-question wp-block-paragraph"><?php echo esc_html($question); ?></p>
 
             <!-- Buttons im WP-Block-Design -->

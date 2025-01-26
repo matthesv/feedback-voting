@@ -8,11 +8,12 @@ jQuery(function($) {
 
         var container = $(this).closest('.feedback-voting-container');
         var question = container.data('question');
+        var postId = container.data('postid') || 0;
         var vote = $(this).data('vote');
 
         // Bei "Ja" wird direkt abgesendet
         if (vote === 'yes') {
-            submitVote(container, question, 'yes', '');
+            submitVote(container, question, 'yes', '', postId);
         }
         // Bei "Nein" und aktivierter Option -> Freitextfeld einblenden, noch kein Submit
         else if (vote === 'no' && enableFeedbackField === '1') {
@@ -20,7 +21,7 @@ jQuery(function($) {
         }
         else {
             // Wenn das Freitextfeld deaktiviert ist, dann sofort "no" absenden
-            submitVote(container, question, 'no', '');
+            submitVote(container, question, 'no', '', postId);
         }
     });
 
@@ -30,15 +31,16 @@ jQuery(function($) {
 
         var container = $(this).closest('.feedback-voting-container');
         var question = container.data('question');
+        var postId = container.data('postid') || 0;
         // Der Benutzer könnte noch nichts eingetippt haben
         var feedbackText = container.find('#feedback-no-text').val().trim();
 
         // Jetzt wird "no" plus optionaler Freitext abgesendet
-        submitVote(container, question, 'no', feedbackText);
+        submitVote(container, question, 'no', feedbackText, postId);
     });
 
     // AJAX-Vote-Funktion
-    function submitVote(container, question, vote, feedback) {
+    function submitVote(container, question, vote, feedback, postId) {
         // Buttons deaktivieren, damit nicht mehrmals geklickt wird
         container.find('.feedback-button').prop('disabled', true);
 
@@ -50,6 +52,7 @@ jQuery(function($) {
                 question: question,
                 vote: vote,
                 feedback: feedback,
+                post_id: postId,
                 // Nonce-Parameter für den Security-Check
                 security: feedbackVoting.nonce
             },
