@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.0.24
+Version:     1.0.26
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.24');
+define('FEEDBACK_VOTING_VERSION', '1.0.26');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1'); // unsere interne DB-Version
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
