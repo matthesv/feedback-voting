@@ -1,12 +1,10 @@
 /***************************************************************
-  Feedback Voting – Plugin-spezifische Klassen 
+  Feedback Voting – Plugin-spezifische Klassen
 ***************************************************************/
 
 /* Container allgemein */
 .feedback-voting-container {
-  /* Die Box soll nicht unendlich breit sein -> inline-block */
   display: inline-block;
-
   border: 1.5px solid var(--primary);
   border-radius: 6rem;
   font-size: 1rem;
@@ -24,7 +22,7 @@
 /* Frage-Text */
 .feedback-question {
   margin: 0;
-  font-weight: normal; /* war zuvor 600 */
+  font-weight: normal;
   color: #1b1c1c;
 }
 
@@ -50,7 +48,7 @@
 /* Separate Box für "Nein"-Feedback (ohne Rahmen) */
 .feedback-no-text-box {
   margin-bottom: 1.5rem;
-  padding: 1rem 0; /* optional etwas Padding, aber kein Rahmen */
+  padding: 1rem 0; /* kein Rahmen, nur etwas Abstand */
   border: none;
   display: none; /* per Default unsichtbar, JS blendet ein */
 }
@@ -86,9 +84,17 @@
   margin-bottom: 1rem;
 }
 
-/* Mobile: Nur Icons anzeigen, Text ausblenden */
+/* Mobile-Anpassungen */
 @media only screen and (max-width: 600px) {
-  .feedback-button .button-text {
+  /* Nur die Text-Beschriftung der Thumbs-Up/Thumbs-Down-Buttons ausblenden */
+  .feedback-button.feedback-yes .button-text,
+  .feedback-button.feedback-no .button-text {
     display: none;
+  }
+
+  /* Den "Feedback senden"-Button größer machen und Text beibehalten */
+  .feedback-button.feedback-submit-no {
+    padding: 0.75rem 1.25rem;
+    font-size: 16px;
   }
 }
