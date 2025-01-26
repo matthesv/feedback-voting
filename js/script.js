@@ -1,6 +1,6 @@
 jQuery(function($) {
 
-    // Globale Einstellung, ob das Freitextfeld bei "Nein" aktiviert ist:
+    // Globale Einstellung, ob das Freitextfeld bei "Nein" aktiviert ist: 
     var enableFeedbackField = feedbackVoting.enableFeedbackField;
 
     // Klick auf "Ja" oder "Nein"
