@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://www.abg.de
 Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.9
+Version:     1.0.10
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.9');
+define('FEEDBACK_VOTING_VERSION', '1.0.10');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -70,11 +70,17 @@ add_action('plugins_loaded', 'feedback_voting_init');
  * Lädt die Styles und Skripte im Frontend.
  */
 function feedback_voting_enqueue_scripts() {
+
+    // NEU: Ermittlung der filemtime, damit Cache-Buster genutzt werden kann
+    //      Falls auf manchen Caching-Systemen das Laden des CSS/JS Probleme macht
+    $css_version = filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'css/style.css');
+    $js_version  = filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'js/script.js');
+
     wp_enqueue_style(
         'feedback-voting-style',
         FEEDBACK_VOTING_PLUGIN_URL . 'css/style.css',
         array(),
-        FEEDBACK_VOTING_VERSION,
+        $css_version, // NEU: DateTime-Hash als Versionsstring
         'all'
     );
 
@@ -82,14 +88,15 @@ function feedback_voting_enqueue_scripts() {
         'feedback-voting-script',
         FEEDBACK_VOTING_PLUGIN_URL . 'js/script.js',
         array('jquery'),
-        FEEDBACK_VOTING_VERSION,
+        $js_version, // NEU: DateTime-Hash als Versionsstring
         true
     );
 
-    // Übergibt PHP-Daten an das JavaScript (AJAX-URL, Plugin-Einstellungen etc.)
+    // NEU: Nonce-Generierung und -Übergabe
     wp_localize_script('feedback-voting-script', 'feedbackVoting', array(
         'ajaxUrl'             => admin_url('admin-ajax.php'),
         'enableFeedbackField' => get_option('feedback_voting_enable_feedback_field', '1'),
+        'nonce'               => wp_create_nonce('feedback_nonce_action'), // NEU
     ));
 }
 add_action('wp_enqueue_scripts', 'feedback_voting_enqueue_scripts');

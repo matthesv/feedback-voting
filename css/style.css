@@ -3,71 +3,70 @@
 ***************************************************************/
 
 .feedback-voting-container {
-    background-color: #fff;
-    border: 1px solid #e2e8ee;
-    border-radius: 6px;
-    padding: 16px;
-    max-width: 480px;
-    margin: 20px auto;         /* Zentriert die Box selbst innerhalb der Seite */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    text-align: center;        /* Zentriert den Inhalt in der Box */
-  }
-  
-  .feedback-question {
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #1b1c1c;
-    /* text-align: center; – entfällt, da bereits der Container zentriert */
-  }
-  
-  /* JA/NEIN-Buttons im WP-Block-Stil */
-  .feedback-button {
-    background-color: #0073aa;
-    color: #fff;
-    border: none;
-    border-radius: 9999px; /* pillenförmiger Stil */
-    padding: 8px 16px;
-    margin-right: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  .feedback-button:hover {
-    background-color: #005b8d;
-  }
-  
-  /* Bereich für das Freitextfeld bei "Nein" */
-  .feedback-no-text-container {
-    margin-top: 12px;
-  }
-  
-  /* Label mittig ausrichten */
-  .feedback-no-text-container label {
-    display: inline-block; /* Damit wir es besser mittig ausrichten können */
-    margin-bottom: 6px;
-    font-weight: 600;
-    color: #1b1c1c;
-    text-align: center;
-  }
-  
-  /* Textarea mittig darstellen, aber die Inhalte links ausrichten */
-  .feedback-no-text-container textarea {
-    display: block;
-    margin: 0 auto;           /* Zentriert das Textfeld selbst */
-    width: 80%;               /* Ggf. die Breite anpassen */
-    box-sizing: border-box;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    min-height: 80px;
-    text-align: left;         /* Text in der Box linksbündig */
-  }
-  
-  /* Danke-Nachricht */
-  .feedback-thankyou-message {
-    margin-top: 12px;
-    font-style: italic;
-    color: #2c6f00;
-  }
-  
+  background-color: #fff;
+  border: 1px solid #e2e8ee;
+  border-radius: 6px;
+  padding: 16px;
+  max-width: 480px;
+  margin: 20px auto;         /* Zentriert die Box selbst innerhalb der Seite */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  text-align: center;        /* Zentriert den Inhalt in der Box */
+}
+
+.feedback-question {
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1b1c1c;
+  /* text-align: center; – entfällt, da bereits der Container zentriert */
+}
+
+/* JA/NEIN-Buttons im WP-Block-Stil */
+.feedback-button {
+  background-color: #0073aa;
+  color: #fff;
+  border: none;
+  border-radius: 9999px; /* pillenförmiger Stil */
+  padding: 8px 16px;
+  margin-right: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.feedback-button:hover {
+  background-color: #005b8d;
+}
+
+/* Bereich für das Freitextfeld bei "Nein" */
+.feedback-no-text-container {
+  margin-top: 12px;
+}
+
+/* Label mittig ausrichten */
+.feedback-no-text-container label {
+  display: inline-block; /* Damit wir es besser mittig ausrichten können */
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #1b1c1c;
+  text-align: center;
+}
+
+/* Textarea mittig darstellen, aber die Inhalte links ausrichten */
+.feedback-no-text-container textarea {
+  display: block;
+  margin: 0 auto;           /* Zentriert das Textfeld selbst */
+  width: 80%;               /* Ggf. die Breite anpassen */
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-height: 80px;
+  text-align: left;         /* Text in der Box linksbündig */
+}
+
+/* Danke-Nachricht */
+.feedback-thankyou-message {
+  margin-top: 12px;
+  font-style: italic;
+  color: #2c6f00;
+}

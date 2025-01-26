@@ -49,8 +49,9 @@ jQuery(function($) {
                 action: 'my_feedback_plugin_vote',
                 question: question,
                 vote: vote,
-                feedback: feedback
-                // 'security': feedbackVoting.nonce, // Falls du mit Nonce arbeiten willst
+                feedback: feedback,
+                // NEU: Nonce-Parameter
+                security: feedbackVoting.nonce
             },
             success: function(response) {
                 if (response.success) {
