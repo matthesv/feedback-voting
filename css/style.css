@@ -1,61 +1,71 @@
 /***************************************************************
-  Feedback Voting - Plugin-spezifische Klassen
+  Beispiel: WordPress-Block-Grundstyles (sofern gewünscht)
+  ... (hier ggf. die große WP-Block-CSS-Datei einfügen) ...
 ***************************************************************/
 
-/* Container */
+/***************************************************************
+  Feedback Voting – Plugin-spezifische Klassen
+***************************************************************/
+
 .feedback-voting-container {
+    /* Angleichung an das helle Layout */
+    background-color: #fff;
+    border: 1px solid #e2e8ee; /* dezenter, heller Border-Ton */
+    border-radius: 6px;
+    padding: 16px;
+    max-width: 480px; /* etwas breiter als zuvor */
     margin: 20px 0;
-    border: 1px solid #ddd;
-    padding: 20px;
-    max-width: 500px;
-    background: #f9f9f9;
-    border-radius: 4px;
-}
-
-/* Frage-Text */
-.feedback-question {
-    font-weight: bold;
-    margin-bottom: 16px;
-}
-
-/* Buttons: Wir nutzen zusätzlich .wp-block-button__link */
-.feedback-button {
-    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* leichter Schatten */
+  }
+  
+  .feedback-question {
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1b1c1c; /* etwas dunklerer Textfarbton */
+  }
+  
+  /* JA/NEIN-Buttons im WP-Block-Stil */
+  .feedback-button {
+    background-color: #00457c /* Primärfarbe anpassen an Corporate Design */
+    color: #fff;
     border: none;
+    border-radius: 9999px; /* pillenförmiger Stil */
+    padding: 8px 16px;
     margin-right: 8px;
     font-size: 14px;
-    /* Da .wp-block-button__link üblicherweise gerundete Kanten hat, 
-       können wir optional die Ecken noch mal anpassen: */
-    border-radius: 9999px;
-    transition: background-color 0.15s ease-in-out;
-}
-
-/* Ja-/Nein-Button: Hover/Fokus-Stil */
-.feedback-button:hover {
-    opacity: 0.85;
-}
-
-/* Freitextcontainer bei "Nein" */
-.feedback-no-text-container {
-    margin-top: 10px;
-}
-
-.feedback-no-text-container label {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .feedback-button:hover {
+    background-color: #005b8d; /* dunklere Variante für Hover */
+  }
+  
+  /* Bereich für das Freitextfeld bei "Nein" */
+  .feedback-no-text-container {
+    margin-top: 12px;
+  }
+  
+  .feedback-no-text-container label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.feedback-no-text-container textarea {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #1b1c1c;
+  }
+  
+  .feedback-no-text-container textarea {
     width: 100%;
     box-sizing: border-box;
-    resize: vertical;
     padding: 8px;
-}
-
-/* Danke-Nachricht */
-.feedback-thankyou-message {
-    margin-top: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-height: 80px;
+  }
+  
+  /* Danke-Nachricht */
+  .feedback-thankyou-message {
+    margin-top: 12px;
     font-style: italic;
-    color: #2c6f00;
-}
+    color:  #00457c /* freundliches Grün */
+  }
+  
