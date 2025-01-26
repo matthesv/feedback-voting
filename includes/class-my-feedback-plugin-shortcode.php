@@ -11,7 +11,7 @@ class My_Feedback_Plugin_Shortcode {
 
     /**
      * Rendert den Shortcode [feedback_voting question="..."]
-     * Ermittelt außerdem die aktuelle Post-ID (z.B. im Loop), um sie mitzuspeichern.
+     * Ermittelt außerdem die aktuelle Post-ID, um sie mitzuspeichern.
      */
     public function render_shortcode($atts) {
         // Standardwerte festlegen
@@ -28,15 +28,13 @@ class My_Feedback_Plugin_Shortcode {
 
         ob_start();
         ?>
+        <!-- Hauptcontainer mit Rahmen -->
         <div class="feedback-voting-container"
              data-question="<?php echo esc_attr($question); ?>"
              data-postid="<?php echo esc_attr($post_id); ?>">
 
-            <!-- Zeile mit der Frage und den Buttons -->
             <div class="feedback-voting-top-row">
-                <p class="feedback-question">
-                    <?php echo esc_html($question); ?>
-                </p>
+                <p class="feedback-question"><?php echo esc_html($question); ?></p>
 
                 <!-- Daumen hoch -->
                 <button class="feedback-button feedback-yes" data-vote="yes">
@@ -50,19 +48,18 @@ class My_Feedback_Plugin_Shortcode {
                     <span class="button-text"><?php _e('Nein, leider nicht', 'feedback-voting'); ?></span>
                 </button>
             </div>
+        </div>
 
-            <!-- Freitext-Bereich bei "Nein" (per JS einblendbar) -->
-            <div class="feedback-no-text-container">
-                <label for="feedback-no-text">
-                    <?php _e('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'); ?>
-                </label>
-                <textarea id="feedback-no-text" rows="3"></textarea>
+        <!-- Separate Box ohne Rahmen für das "Nein"-Feedback -->
+        <div class="feedback-no-text-box">
+            <label for="feedback-no-text">
+                <?php _e('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'); ?>
+            </label>
+            <textarea class="feedback-no-text" id="feedback-no-text" rows="3"></textarea>
 
-                <!-- Separater Button für das Absenden der Nein-Feedbacks -->
-                <button class="feedback-button feedback-submit-no">
-                    <span class="button-text"><?php _e('Feedback senden', 'feedback-voting'); ?></span>
-                </button>
-            </div>
+            <button class="feedback-button feedback-submit-no">
+                <span class="button-text"><?php _e('Feedback senden', 'feedback-voting'); ?></span>
+            </button>
         </div>
         <?php
         return ob_get_clean();
