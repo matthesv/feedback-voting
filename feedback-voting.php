@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Feedback Voting
-Plugin URI:  https://www.abg.de
-Description: Bietet ein einfaches "Hat Ihnen diese Antwort geholfen?" (Ja/Nein) Feedback-Voting
-Version:     1.0.16
+Plugin URI:  https://www.
+Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
+Version:     1.0.17
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.0.15');
+define('FEEDBACK_VOTING_VERSION', '1.0.17');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -31,8 +31,7 @@ function feedback_voting_activate() {
     $table_name = $wpdb->prefix . 'feedback_votes';
     $charset_collate = $wpdb->get_charset_collate();
 
-    // Angepasst: Keine "DEFAULT CURRENT_TIMESTAMP" – das kann zu Problemen führen
-    // Außerdem entfernen wir "IF NOT EXISTS", da dbDelta() die Tabelle sowieso erstellt oder updatet.
+    // Angepasst: Keine "DEFAULT CURRENT_TIMESTAMP"
     $sql = "CREATE TABLE $table_name (
         id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
         question TEXT NOT NULL,
@@ -63,8 +62,7 @@ register_deactivation_hook(__FILE__, 'feedback_voting_deactivate');
  * Initialisiert die Plugin-Klassen und führt ggf. ein Datenbank-Update durch.
  */
 function feedback_voting_init() {
-    // Beim normalen Laden: Noch einmal dbDelta ausführen, damit neue Spalten angelegt werden.
-    // (Nur nötig, wenn man sicherstellen will, dass die Tabelle auch bei Plugin-Updates passt.)
+    // Beim normalen Laden: Noch einmal dbDelta ausführen, um neue Spalten anzulegen.
     feedback_voting_activate();
 
     new My_Feedback_Plugin_Admin();
@@ -83,8 +81,13 @@ function feedback_voting_enqueue_scripts() {
     wp_enqueue_style('wp-block-library');
 
     // Cache-Buster anhand des Dateisystems (filemtime)
-    $css_version = filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'css/style.css');
-    $js_version  = filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'js/script.js');
+    $css_version = file_exists(FEEDBACK_VOTING_PLUGIN_DIR . 'css/style.css')
+        ? filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'css/style.css')
+        : FEEDBACK_VOTING_VERSION;
+
+    $js_version = file_exists(FEEDBACK_VOTING_PLUGIN_DIR . 'js/script.js')
+        ? filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'js/script.js')
+        : FEEDBACK_VOTING_VERSION;
 
     wp_enqueue_style(
         'feedback-voting-style',

@@ -15,7 +15,7 @@ class My_Feedback_Plugin_Ajax {
      * Nimmt per AJAX das Feedback entgegen und speichert es in der Datenbank.
      */
     public function handle_ajax_vote() {
-        // Nonce-Check (schlägt fehl, wenn Cache oder abgelaufene Nonce)
+        // Nonce-Check
         check_ajax_referer('feedback_nonce_action', 'security');
 
         global $wpdb;
@@ -24,7 +24,6 @@ class My_Feedback_Plugin_Ajax {
         $question = isset($_POST['question']) ? sanitize_text_field($_POST['question']) : '';
         $vote     = isset($_POST['vote']) ? sanitize_text_field($_POST['vote']) : '';
         $feedback = isset($_POST['feedback']) ? sanitize_textarea_field($_POST['feedback']) : '';
-        // Neu: post_id übernehmen
         $post_id  = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
 
         if (empty($question) || empty($vote)) {
@@ -41,7 +40,7 @@ class My_Feedback_Plugin_Ajax {
             'created_at'    => current_time('mysql')
         );
 
-        // Wichtig: Format-Array angeben, damit WP weiß, wie die Daten eingefügt werden.
+        // Format-Array für sicheres Einfügen
         $result = $wpdb->insert(
             $table_name,
             $data,
@@ -49,7 +48,6 @@ class My_Feedback_Plugin_Ajax {
         );
 
         if ($result === false) {
-            // Ggf. weitere Debug-Ausgabe via $wpdb->last_error oder $wpdb->last_query
             wp_send_json_error(array(
                 'message' => __('Fehler beim Speichern der Bewertung.', 'feedback-voting')
             ));
