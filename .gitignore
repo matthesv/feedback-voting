@@ -1,0 +1,4 @@
+
+# Ignoriere alle .bat-Dateien
+*.bat
+output.txt
