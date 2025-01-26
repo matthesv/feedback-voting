@@ -96,7 +96,7 @@ function feedback_voting_enqueue_scripts() {
 add_action('wp_enqueue_scripts', 'feedback_voting_enqueue_scripts');
 
 // Plugin Update Checker laden (GitHub)
-require LFMV_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
+require FEEDBACK_VOTING_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 $myUpdateChecker = PucFactory::buildUpdateChecker(
