@@ -12,9 +12,11 @@ class My_Feedback_Plugin_Ajax {
     }
 
     /**
-     * Nimmt per AJAX das Feedback entgegen und speichert es in der Datenbank.
-     * - "Ja" -> sofort Insert
-     * - "Nein" -> Insert erst, wenn "Feedback senden" geklickt wird
+     * Nimmt per AJAX das Feedback entgegen und speichert bzw. aktualisiert es in der Datenbank.
+     *
+     * Ablauf:
+     * - Wenn KEIN "vote_id" übergeben wird, legen wir einen neuen Datensatz an (Insert).
+     * - Wenn "vote_id" übergeben wird, aktualisieren wir NUR das Feedback-Feld (Update).
      */
     public function handle_ajax_vote() {
         // Nonce-Check
@@ -23,39 +25,68 @@ class My_Feedback_Plugin_Ajax {
         global $wpdb;
         $table_name = $wpdb->prefix . 'feedback_votes';
 
+        // Eingehende Werte
+        $vote_id = isset($_POST['vote_id']) ? intval($_POST['vote_id']) : 0;
         $question = isset($_POST['question']) ? sanitize_text_field($_POST['question']) : '';
         $vote     = isset($_POST['vote']) ? sanitize_text_field($_POST['vote']) : '';
         $feedback = isset($_POST['feedback']) ? sanitize_textarea_field($_POST['feedback']) : '';
         $post_id  = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
 
-        if (empty($question) || empty($vote)) {
-            wp_send_json_error(array(
-                'message' => __('Ungültige Daten übermittelt.', 'feedback-voting')
-            ));
-        }
+        // Beim allerersten Insert benötigen wir mindestens eine Frage und einen Vote.
+        // Beim Update könnte es sein, dass wir (strikt genommen) vote/frage nicht mehr benötigen,
+        // aber wir validieren dennoch den eingehenden Vote auf Korrektheit.
+        if ($vote_id === 0) {
+            // Neuer Eintrag (Insert)
+            if (empty($question) || empty($vote)) {
+                wp_send_json_error(array(
+                    'message' => __('Ungültige Daten übermittelt.', 'feedback-voting')
+                ));
+            }
 
-        $data = array(
-            'question'      => $question,
-            'vote'          => $vote,
-            'feedback_text' => $feedback,
-            'post_id'       => $post_id,
-            'created_at'    => current_time('mysql')
-        );
+            $data = array(
+                'question'      => $question,
+                'vote'          => $vote,
+                'feedback_text' => $feedback, // kann hier leer sein
+                'post_id'       => $post_id,
+                'created_at'    => current_time('mysql')
+            );
 
-        // Versuchen zu speichern
-        $result = $wpdb->insert(
-            $table_name,
-            $data,
-            array('%s','%s','%s','%d','%s')
-        );
+            $format = array('%s','%s','%s','%d','%s');
 
-        if ($result === false) {
-            wp_send_json_error(array(
-                'message' => __('Fehler beim Speichern der Bewertung.', 'feedback-voting')
-            ));
-        } else {
+            $result = $wpdb->insert($table_name, $data, $format);
+
+            if ($result === false) {
+                wp_send_json_error(array(
+                    'message' => __('Fehler beim Speichern der Bewertung.', 'feedback-voting')
+                ));
+            }
+
+            $insert_id = $wpdb->insert_id;
             wp_send_json_success(array(
-                'message' => __('Bewertung erfolgreich gespeichert.', 'feedback-voting')
+                'message' => __('Bewertung erfolgreich gespeichert.', 'feedback-voting'),
+                'vote_id' => $insert_id
+            ));
+
+        } else {
+            // Update - hier wird nur das feedback_text-Feld nachträglich gefüllt
+            // (der Vote 'no' ist bereits vorhanden)
+            $update_result = $wpdb->update(
+                $table_name,
+                array('feedback_text' => $feedback),
+                array('id' => $vote_id),
+                array('%s'),
+                array('%d')
+            );
+
+            if ($update_result === false) {
+                wp_send_json_error(array(
+                    'message' => __('Fehler beim Aktualisieren des Feedbacks.', 'feedback-voting')
+                ));
+            }
+
+            wp_send_json_success(array(
+                'message' => __('Feedback erfolgreich aktualisiert.', 'feedback-voting'),
+                'vote_id' => $vote_id
             ));
         }
     }
