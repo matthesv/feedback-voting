@@ -193,6 +193,7 @@ class My_Feedback_Plugin_Admin {
                         <th><?php _e('Vote', 'feedback-voting'); ?></th>
                         <th><?php _e('Feedback-Text', 'feedback-voting'); ?></th>
                         <th><?php _e('Shortcode-Location', 'feedback-voting'); ?></th>
+                        <th><?php _e('Post ID', 'feedback-voting'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -211,17 +212,16 @@ class My_Feedback_Plugin_Admin {
                                     <a href="<?php echo esc_url($post_link); ?>" target="_blank">
                                         <?php echo esc_html($post_title); ?>
                                     </a>
-                                    <br>
-                                    <small><?php echo 'ID: ' . intval($feedback->post_id); ?></small>
                                 <?php else : ?>
                                     <em><?php _e('Keine Zuordnung', 'feedback-voting'); ?></em>
                                 <?php endif; ?>
                             </td>
+                            <td><?php echo intval($feedback->post_id); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="5"><?php _e('Keine Feedbacks vorhanden.', 'feedback-voting'); ?></td>
+                        <td colspan="6"><?php _e('Keine Feedbacks vorhanden.', 'feedback-voting'); ?></td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
@@ -269,7 +269,7 @@ class My_Feedback_Plugin_Admin {
     }
 
     /**
-     * CSV-Export-Handler
+     * CSV-Export-Handler (jetzt mit CP-1252 Encoding und Post-ID-Spaltenüberschrift)
      */
     public function handle_export_csv() {
         if (!current_user_can('manage_options')) {
@@ -282,34 +282,49 @@ class My_Feedback_Plugin_Admin {
 
         $filename = 'feedback_voting_' . date('Y-m-d_H-i-s') . '.csv';
 
-        // CSV-Header
-        header('Content-Type: text/csv; charset=utf-8');
+        // CSV-Header: Wir setzen die Kodierung auf Windows-1252
+        header('Content-Type: text/csv; charset=Windows-1252');
         header('Content-Disposition: attachment; filename=' . $filename);
 
         $output = fopen('php://output', 'w');
 
-        // Spaltenkopf
-        fputcsv($output, array(
+        // Spaltenkopf – jetzt mit separater "Post ID" Spalte
+        $columns = array(
             __('Datum', 'feedback-voting'),
             __('Frage', 'feedback-voting'),
             __('Vote', 'feedback-voting'),
             __('Feedback-Text', 'feedback-voting'),
-            __('Shortcode-Location (post_id)', 'feedback-voting')
-        ));
+            __('Post ID', 'feedback-voting')
+        );
 
-        // Rows
+        // Konvertierung der Spaltenüberschriften in CP-1252
+        $columns_1252 = array_map(function($col) {
+            return iconv('UTF-8', 'Windows-1252//TRANSLIT', $col);
+        }, $columns);
+
+        fputcsv($output, $columns_1252);  // Standard-Trennzeichen Komma
+
+        // Rows abfragen und jeweils konvertieren
         $rows = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
         if (!empty($rows)) {
             foreach ($rows as $r) {
-                fputcsv($output, array(
+                // Jede Zelle in CP-1252 konvertieren
+                $line = array(
                     $r->created_at,
                     $r->question,
                     $r->vote,
                     $r->feedback_text,
                     $r->post_id
-                ));
+                );
+
+                $line_1252 = array_map(function($val) {
+                    return iconv('UTF-8', 'Windows-1252//TRANSLIT', $val);
+                }, $line);
+
+                fputcsv($output, $line_1252);
             }
         }
+
         fclose($output);
         exit;
     }
