@@ -200,6 +200,9 @@ class My_Feedback_Plugin_Admin {
                 <?php if (!empty($all_feedbacks)) : ?>
                     <?php foreach ($all_feedbacks as $feedback) :
                         $post_title = get_the_title($feedback->post_id);
+                        if (empty($post_title)) {
+                            $post_title = __('Keine Zuordnung', 'feedback-voting');
+                        }
                         $post_link  = get_permalink($feedback->post_id);
                         ?>
                         <tr>
@@ -208,12 +211,12 @@ class My_Feedback_Plugin_Admin {
                             <td><?php echo esc_html($feedback->vote); ?></td>
                             <td><?php echo esc_html($feedback->feedback_text); ?></td>
                             <td>
-                                <?php if (!empty($post_title)) : ?>
+                                <?php if (!empty($post_link) && $post_title !== __('Keine Zuordnung', 'feedback-voting')) : ?>
                                     <a href="<?php echo esc_url($post_link); ?>" target="_blank">
                                         <?php echo esc_html($post_title); ?>
                                     </a>
                                 <?php else : ?>
-                                    <em><?php _e('Keine Zuordnung', 'feedback-voting'); ?></em>
+                                    <em><?php echo esc_html($post_title); ?></em>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo intval($feedback->post_id); ?></td>
@@ -269,7 +272,7 @@ class My_Feedback_Plugin_Admin {
     }
 
     /**
-     * CSV-Export-Handler (jetzt mit CP-1252 Encoding und Post-ID-Spaltenüberschrift)
+     * CSV-Export-Handler (jetzt mit CP-1252 Encoding und zusätzlicher "Shortcode-Location" Spalte)
      */
     public function handle_export_csv() {
         if (!current_user_can('manage_options')) {
@@ -282,19 +285,20 @@ class My_Feedback_Plugin_Admin {
 
         $filename = 'feedback_voting_' . date('Y-m-d_H-i-s') . '.csv';
 
-        // CSV-Header: Wir setzen die Kodierung auf Windows-1252
+        // CSV-Header: Kodierung auf Windows-1252
         header('Content-Type: text/csv; charset=Windows-1252');
         header('Content-Disposition: attachment; filename=' . $filename);
 
         $output = fopen('php://output', 'w');
 
-        // Spaltenkopf – jetzt mit separater "Post ID" Spalte
+        // Spaltenkopf – jetzt mit zusätzlicher "Shortcode-Location"
         $columns = array(
             __('Datum', 'feedback-voting'),
             __('Frage', 'feedback-voting'),
             __('Vote', 'feedback-voting'),
             __('Feedback-Text', 'feedback-voting'),
-            __('Post ID', 'feedback-voting')
+            __('Shortcode-Location', 'feedback-voting'),
+            __('Post ID', 'feedback-voting'),
         );
 
         // Konvertierung der Spaltenüberschriften in CP-1252
@@ -304,19 +308,26 @@ class My_Feedback_Plugin_Admin {
 
         fputcsv($output, $columns_1252);  // Standard-Trennzeichen Komma
 
-        // Rows abfragen und jeweils konvertieren
+        // Rows abfragen
         $rows = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
         if (!empty($rows)) {
             foreach ($rows as $r) {
-                // Jede Zelle in CP-1252 konvertieren
+                // Post-Titel ermitteln; ggf. Platzhalter, wenn nicht vorhanden
+                $post_title = get_the_title($r->post_id);
+                if (empty($post_title)) {
+                    $post_title = __('Keine Zuordnung', 'feedback-voting');
+                }
+
                 $line = array(
                     $r->created_at,
                     $r->question,
                     $r->vote,
                     $r->feedback_text,
+                    $post_title,
                     $r->post_id
                 );
 
+                // Jede Zelle in CP-1252 konvertieren
                 $line_1252 = array_map(function($val) {
                     return iconv('UTF-8', 'Windows-1252//TRANSLIT', $val);
                 }, $line);
