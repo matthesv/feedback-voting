@@ -330,7 +330,7 @@ class My_Feedback_Plugin_Admin {
     }
 
     /**
-     * Handler für "Alle löschen".
+     * Handler für "Alle löschen"
      */
     public function handle_delete_all() {
         if (!current_user_can('manage_options')) {
