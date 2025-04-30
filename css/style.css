@@ -2,7 +2,6 @@
   Feedback Voting – Plugin-spezifische Klassen
 ***************************************************************/
 
-/* Container allgemein */
 .feedback-voting-container {
   display: inline-block;
   border: 1.5px solid var(--fv-primary, #0073aa);
@@ -12,26 +11,23 @@
   margin-bottom: 1.5rem;
 }
 
-/* Obere Zeile mit Frage + Ja/Nein-Buttons */
 .feedback-voting-top-row {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* Frage-Text */
 .feedback-question {
   margin: 0;
   font-weight: normal;
   color: #1b1c1c;
 }
 
-/* JA/NEIN-Buttons (Pillenform) */
 .feedback-button {
-  background-color: var(--fv-primary, #0073aa);
+  background-color: var(--fv-button-color, var(--fv-primary, #0073aa));
   color: #fff;
   border: none;
-  border-radius: 9999px; /* Pillenform */
+  border-radius: var(--fv-border-radius, 9999px);
   padding: 0.5rem 1rem;
   font-size: 14px;
   cursor: pointer;
@@ -42,18 +38,16 @@
 }
 
 .feedback-button:hover {
-  background-color: #005b8d;
+  background-color: var(--fv-button-hover-color, #005b8d);
 }
 
-/* Separate Box für "Nein"-Feedback (ohne Rahmen) */
 .feedback-no-text-box {
   margin-bottom: 1.5rem;
-  padding: 1rem 0; /* kein Rahmen, nur etwas Abstand */
+  padding: 1rem 0;
   border: none;
-  display: none; /* per Default unsichtbar, JS blendet ein */
+  display: none;
 }
 
-/* Label + Textarea */
 .feedback-no-text-box label {
   display: block;
   margin-bottom: 0.5rem;
@@ -76,23 +70,18 @@
   margin-top: 0.75rem;
 }
 
-/* Optionales Styling für den Dankes-Text */
 .feedback-thankyou {
   font-weight: 600;
   color: var(--fv-primary, #0073aa);
-  margin: 0;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem 0;
 }
 
-/* Mobile-Anpassungen */
 @media only screen and (max-width: 600px) {
-  /* Nur die Text-Beschriftung der Thumbs-Up/Thumbs-Down-Buttons ausblenden */
   .feedback-button.feedback-yes .button-text,
   .feedback-button.feedback-no .button-text {
     display: none;
   }
 
-  /* Den "Feedback senden"-Button größer machen und Text beibehalten */
   .feedback-button.feedback-submit-no {
     padding: 0.75rem 1.25rem;
     font-size: 16px;
