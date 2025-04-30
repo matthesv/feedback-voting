@@ -5,7 +5,7 @@
 /* Container allgemein */
 .feedback-voting-container {
   display: inline-block;
-  border: 1.5px solid var(--primary);
+  border: 1.5px solid var(--fv-primary, #0073aa);
   border-radius: 6rem;
   font-size: 1rem;
   padding: 0.5rem 1rem;
@@ -28,7 +28,7 @@
 
 /* JA/NEIN-Buttons (Pillenform) */
 .feedback-button {
-  background-color: #0073aa;
+  background-color: var(--fv-primary, #0073aa);
   color: #fff;
   border: none;
   border-radius: 9999px; /* Pillenform */
@@ -79,7 +79,7 @@
 /* Optionales Styling für den Dankes-Text */
 .feedback-thankyou {
   font-weight: 600;
-  color: #0073aa;
+  color: var(--fv-primary, #0073aa);
   margin: 0;
   margin-bottom: 1rem;
 }

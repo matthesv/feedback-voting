@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.2.2
+Version:     1.2.3
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin-Konstanten definieren
-define('FEEDBACK_VOTING_VERSION', '1.2.2');
+define('FEEDBACK_VOTING_VERSION', '1.2.3');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1'); // unsere interne DB-Version
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -69,6 +69,11 @@ function feedback_voting_enqueue_scripts() {
         $css_version,
         'all'
     );
+
+    // Custom Design-Farbe aus Option
+    $primary_color = get_option('feedback_voting_primary_color', '#0073aa');
+    $custom_css = ':root{--fv-primary:' . esc_attr($primary_color) . ';}';
+    wp_add_inline_style('feedback-voting-style', $custom_css);
 
     wp_enqueue_script(
         'feedback-voting-script',
