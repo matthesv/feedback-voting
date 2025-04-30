@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.2.3
+Version:     1.2.4
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
