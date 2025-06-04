@@ -9,6 +9,7 @@
   font-size: 1rem;
   padding: 0.5rem 1rem;
   margin-bottom: 1.5rem;
+  width: var(--fv-box-width, 100%);
 }
 
 .feedback-voting-top-row {
@@ -46,6 +47,7 @@
   padding: 1rem 0;
   border: none;
   display: none;
+  width: var(--fv-box-width, 100%);
 }
 
 .feedback-no-text-box label {
@@ -53,6 +55,12 @@
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #1b1c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  .feedback-no-text-box label {
+    color: #f1f1f1;
+  }
 }
 
 .feedback-no-text-box textarea {
