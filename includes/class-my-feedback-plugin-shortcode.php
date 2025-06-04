@@ -26,6 +26,9 @@ class My_Feedback_Plugin_Shortcode {
         global $post;
         $post_id = (is_object($post) && isset($post->ID)) ? $post->ID : 0;
 
+        // Generate unique ID for textarea and label to avoid conflicts
+        $unique_id = 'feedback-no-text-' . uniqid();
+
         ob_start();
         ?>
         <!-- Hauptcontainer mit Rahmen -->
@@ -52,12 +55,12 @@ class My_Feedback_Plugin_Shortcode {
 
         <!-- Separate Box ohne Rahmen für das "Nein"-Feedback -->
         <div class="feedback-no-text-box">
-            <label for="feedback-no-text">
+            <label for="<?php echo esc_attr( $unique_id ); ?>">
                 <?php _e('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'); ?>
             </label>
             <textarea
             class="feedback-no-text"
-            id="feedback-no-text"
+            id="<?php echo esc_attr( $unique_id ); ?>"
             rows="3"
             placeholder="<?php esc_attr_e('Hier können Sie uns Ihre Anregungen mitteilen (optional)', 'feedback-voting'); ?>"
             ></textarea>
