@@ -24,6 +24,12 @@
   color: #1b1c1c;
 }
 
+@media (prefers-color-scheme: dark) {
+  .feedback-question {
+    color: #f1f1f1;
+  }
+}
+
 .feedback-button {
   background-color: var(--fv-button-color, var(--fv-primary, #0073aa));
   color: #fff;
