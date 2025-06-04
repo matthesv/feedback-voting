@@ -78,6 +78,11 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'wp_kses_post',
             'default'           => __('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'),
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_box_width', array(
+            'type'              => 'integer',
+            'sanitize_callback' => 'absint',
+            'default'           => 100,
+        ));
 
         add_settings_section(
             'feedback_voting_settings_section',
@@ -143,6 +148,13 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_settings',
             'feedback_voting_settings_section'
         );
+        add_settings_field(
+            'feedback_voting_box_width',
+            __('Box-Breite (%)', 'feedback-voting'),
+            array($this, 'box_width_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
     }
 
     /** Render Checkbox für Freitext-Feld */
@@ -188,6 +200,15 @@ class My_Feedback_Plugin_Admin {
         printf(
             '<textarea id="feedback_voting_before_text" name="feedback_voting_before_text" rows="3" class="large-text code">%s</textarea>',
             esc_textarea($value)
+        );
+    }
+
+    /** Render Input for box width percentage */
+    public function box_width_render() {
+        $value = get_option('feedback_voting_box_width', 100);
+        printf(
+            '<input type="number" id="feedback_voting_box_width" name="feedback_voting_box_width" value="%d" min="10" max="100" />%%',
+            intval($value)
         );
     }
 
