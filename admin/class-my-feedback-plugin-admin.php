@@ -94,7 +94,11 @@ class My_Feedback_Plugin_Admin {
             array($this, 'color_field_render'),
             'feedback_voting_settings',
             'feedback_voting_settings_section',
-            array('option_name' => 'feedback_voting_primary_color', 'label_for' => 'feedback_voting_primary_color')
+            array(
+                'option_name' => 'feedback_voting_primary_color',
+                'label_for'   => 'feedback_voting_primary_color',
+                'default'     => '#0073aa',
+            )
         );
         add_settings_field(
             'feedback_voting_button_color',
@@ -102,7 +106,11 @@ class My_Feedback_Plugin_Admin {
             array($this, 'color_field_render'),
             'feedback_voting_settings',
             'feedback_voting_settings_section',
-            array('option_name' => 'feedback_voting_button_color', 'label_for' => 'feedback_voting_button_color')
+            array(
+                'option_name' => 'feedback_voting_button_color',
+                'label_for'   => 'feedback_voting_button_color',
+                'default'     => '#0073aa',
+            )
         );
         add_settings_field(
             'feedback_voting_button_hover_color',
@@ -110,7 +118,11 @@ class My_Feedback_Plugin_Admin {
             array($this, 'color_field_render'),
             'feedback_voting_settings',
             'feedback_voting_settings_section',
-            array('option_name' => 'feedback_voting_button_hover_color', 'label_for' => 'feedback_voting_button_hover_color')
+            array(
+                'option_name' => 'feedback_voting_button_hover_color',
+                'label_for'   => 'feedback_voting_button_hover_color',
+                'default'     => '#005b8d',
+            )
         );
         add_settings_field(
             'feedback_voting_border_radius',
@@ -134,14 +146,17 @@ class My_Feedback_Plugin_Admin {
 
     /** Render Color-Picker-Felder */
     public function color_field_render($args) {
-        $option = $args['option_name'];
-        $id     = $args['label_for'];
-        $color  = get_option($option, '');
+        $option  = $args['option_name'];
+        $id      = $args['label_for'];
+        $default = isset($args['default']) ? $args['default'] : '';
+
+        $color = get_option($option, $default);
+
         printf(
             '<input class="feedback-color-field" type="text" id="%1$s" name="%1$s" value="%2$s" data-default-color="%3$s" />',
             esc_attr($id),
             esc_attr($color),
-            esc_attr(get_option($option, ''))
+            esc_attr($default)
         );
     }
 
