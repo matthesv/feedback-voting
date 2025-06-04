@@ -345,7 +345,11 @@ class My_Feedback_Plugin_Admin {
      */
     public function handle_export_csv() {
         if (!current_user_can('manage_options')) {
-            wp_die(__('Du hast keine Berechtigung, dies zu tun.'), 403);
+            wp_die(
+                __('Du hast keine Berechtigung, dies zu tun.'),
+                '',
+                array('response' => 403)
+            );
         }
         check_admin_referer('feedback_voting_export_csv_action');
 
@@ -400,7 +404,11 @@ class My_Feedback_Plugin_Admin {
      */
     public function handle_delete_all() {
         if (!current_user_can('manage_options')) {
-            wp_die(__('Du hast keine Berechtigung, dies zu tun.'), 403);
+            wp_die(
+                __('Du hast keine Berechtigung, dies zu tun.'),
+                '',
+                array('response' => 403)
+            );
         }
         check_admin_referer('feedback_voting_delete_all_action');
 
