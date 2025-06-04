@@ -12,10 +12,16 @@ WP_VERSION=${5:-trunk}
 
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress-develop}
 WP_TESTS_DIR="$WP_CORE_DIR/tests/phpunit"
+PHPUNIT_POLYFILLS_DIR="/tmp/PHPUnit-Polyfills"
 
 if [ ! -d "$WP_CORE_DIR" ]; then
     echo "Cloning WordPress development repository..."
     git clone --depth=1 https://github.com/WordPress/wordpress-develop.git "$WP_CORE_DIR"
+fi
+
+if [ ! -d "$PHPUNIT_POLYFILLS_DIR" ]; then
+    echo "Cloning PHPUnit Polyfills library..."
+    git clone --depth=1 https://github.com/Yoast/PHPUnit-Polyfills.git "$PHPUNIT_POLYFILLS_DIR"
 fi
 
 # Create the database if possible.

@@ -56,7 +56,7 @@ class My_Feedback_Plugin_Shortcode {
         <!-- Separate Box ohne Rahmen für das "Nein"-Feedback -->
         <div class="feedback-no-text-box">
             <label for="<?php echo esc_attr( $unique_id ); ?>">
-                <?php _e('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'); ?>
+                <?php echo wp_kses_post( get_option( 'feedback_voting_before_text', __( 'Helfen Sie uns, was können wir besser machen?', 'feedback-voting' ) ) ); ?>
             </label>
             <textarea
             class="feedback-no-text"
