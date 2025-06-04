@@ -26,6 +26,7 @@ register_activation_hook(__FILE__, array('My_Feedback_Plugin_DB_Manager', 'activ
 register_deactivation_hook(__FILE__, array('My_Feedback_Plugin_DB_Manager', 'deactivate'));
 
 function feedback_voting_init() {
+    load_plugin_textdomain('feedback-voting', false, dirname(plugin_basename(__FILE__)) . '/languages');
     My_Feedback_Plugin_DB_Manager::maybe_update_db();
     new My_Feedback_Plugin_Admin();
     new My_Feedback_Plugin_Shortcode();

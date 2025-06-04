@@ -2,3 +2,6 @@
 # Ignoriere alle .bat-Dateien
 *.bat
 output.txt
+
+phpunit
+languages/*.mo
