@@ -25,7 +25,9 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .feedback-question {
+  .feedback-question,
+  .feedback-no-text-box label,
+  .feedback-thankyou {
     color: #f1f1f1;
   }
 }
@@ -61,12 +63,6 @@
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #1b1c1c;
-}
-
-@media (prefers-color-scheme: dark) {
-  .feedback-no-text-box label {
-    color: #f1f1f1;
-  }
 }
 
 .feedback-no-text-box textarea {
