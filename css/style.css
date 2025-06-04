@@ -85,7 +85,7 @@
   .feedback-question,
   .feedback-no-text-box label,
   .feedback-thankyou {
-    color: #f1f1f1;
+    color: #f1f1f1 !important;
   }
 }
 
