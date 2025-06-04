@@ -80,12 +80,14 @@
 
 @media (prefers-color-scheme: dark) {
   .feedback-voting-container {
-    border-color: var(--fv-primary, #0073aa);
+    /* Maintain the same border color in dark mode */
+    border-color: var(--fv-primary, #0073aa) !important;
   }
   .feedback-question,
   .feedback-no-text-box label,
   .feedback-thankyou {
-    color: #f1f1f1 !important;
+    /* Use bright white text so labels stay readable */
+    color: #ffffff !important;
   }
 }
 
