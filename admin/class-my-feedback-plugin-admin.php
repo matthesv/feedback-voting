@@ -73,6 +73,11 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => '9999px',
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_before_text', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'wp_kses_post',
+            'default'           => __('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'),
+        ));
 
         add_settings_section(
             'feedback_voting_settings_section',
@@ -131,6 +136,13 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_settings',
             'feedback_voting_settings_section'
         );
+        add_settings_field(
+            'feedback_voting_before_text',
+            __('Text oberhalb des Feedback-Felds', 'feedback-voting'),
+            array($this, 'before_text_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
     }
 
     /** Render Checkbox für Freitext-Feld */
@@ -168,6 +180,15 @@ class My_Feedback_Plugin_Admin {
             esc_attr($value)
         );
         echo '<p class="description">' . __('z.B. "4px", "1rem", "50%"','feedback-voting') . '</p>';
+    }
+
+    /** Render Textarea for label above feedback field */
+    public function before_text_render() {
+        $value = get_option('feedback_voting_before_text', __('Helfen Sie uns, was können wir besser machen?', 'feedback-voting'));
+        printf(
+            '<textarea id="feedback_voting_before_text" name="feedback_voting_before_text" rows="3" class="large-text code">%s</textarea>',
+            esc_textarea($value)
+        );
     }
 
     /** Admin-Dashboard rendern */
