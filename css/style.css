@@ -79,6 +79,9 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  .feedback-voting-container {
+    border-color: var(--fv-primary, #0073aa);
+  }
   .feedback-question,
   .feedback-no-text-box label,
   .feedback-thankyou {
