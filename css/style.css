@@ -84,6 +84,7 @@
     border-color: var(--fv-primary, #0073aa) !important;
   }
   .feedback-question,
+  .feedback-no-text-box,
   .feedback-no-text-box label,
   .feedback-thankyou {
     /* Use bright white text so labels stay readable */
