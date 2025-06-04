@@ -6,6 +6,10 @@ if ( ! $_tests_dir ) {
 
 define( 'WP_TESTS_CONFIG_FILE_PATH', __DIR__ . '/wp-tests-config.php' );
 
+if ( ! defined( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH' ) ) {
+    define( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH', '/tmp/PHPUnit-Polyfills' );
+}
+
 require_once $_tests_dir . '/includes/functions.php';
 
 function _manually_load_plugin() {
