@@ -2,7 +2,7 @@
 
 This plugin adds a simple voting system with optional feedback field. PHPUnit tests require the WordPress testing framework.
 
-Since version 1.2.9 you can configure the box width in the admin settings. The label above the feedback field also adapts for dark mode.
+Since version 1.2.11 you can configure the box width in the admin settings. All labels are now readable in dark mode.
 
 ## Installing the WordPress testing framework
 
