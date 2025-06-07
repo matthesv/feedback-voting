@@ -20,7 +20,7 @@ class My_Feedback_Plugin_Admin {
      * Lädt Color-Picker und Admin-Script für Copy-Buttons
      */
     public function enqueue_admin_assets($hook) {
-        if ($hook !== 'toplevel_page_feedback-voting') {
+        if ($hook !== 'toplevel_page_feedback-voting' && $hook !== 'feedback-voting_page_feedback-voting-settings') {
             return;
         }
         wp_enqueue_style('wp-color-picker');
@@ -46,6 +46,24 @@ class My_Feedback_Plugin_Admin {
             'dashicons-thumbs-up',
             80
         );
+
+        add_submenu_page(
+            'feedback-voting',
+            __('Analyse', 'feedback-voting'),
+            __('Analyse', 'feedback-voting'),
+            'manage_options',
+            'feedback-voting',
+            array($this, 'render_admin_page')
+        );
+
+        add_submenu_page(
+            'feedback-voting',
+            __('Einstellungen', 'feedback-voting'),
+            __('Einstellungen', 'feedback-voting'),
+            'manage_options',
+            'feedback-voting-settings',
+            array($this, 'render_settings_page')
+        );
     }
 
     /**
@@ -53,6 +71,11 @@ class My_Feedback_Plugin_Admin {
      */
     public function register_settings() {
         register_setting('feedback_voting_settings_group', 'feedback_voting_enable_feedback_field');
+        register_setting('feedback_voting_settings_group', 'feedback_voting_prevent_multiple', array(
+            'type'              => 'boolean',
+            'sanitize_callback' => 'absint',
+            'default'           => 0,
+        ));
         register_setting('feedback_voting_settings_group', 'feedback_voting_primary_color', array(
             'type'              => 'string',
             'sanitize_callback' => 'sanitize_hex_color',
@@ -152,6 +175,13 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_enable_feedback_field',
             __('Freitext-Feld bei "Nein" aktivieren?', 'feedback-voting'),
             array($this, 'feedback_field_render'),
+            'feedback_voting_settings',
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
+            'feedback_voting_prevent_multiple',
+            __('Mehrfach-Votes innerhalb 24h verhindern?', 'feedback-voting'),
+            array($this, 'prevent_multiple_render'),
             'feedback_voting_settings',
             'feedback_voting_general_section'
         );
@@ -284,6 +314,17 @@ class My_Feedback_Plugin_Admin {
         <label for="feedback_voting_enable_feedback_field">
             <input type="checkbox" id="feedback_voting_enable_feedback_field" name="feedback_voting_enable_feedback_field" value="1" <?php checked($value, '1'); ?> />
             <?php _e('Freitext-Feld für "Nein" aktivieren','feedback-voting'); ?>
+        </label>
+        <?php
+    }
+
+    /** Render Checkbox for preventing multiple votes */
+    public function prevent_multiple_render() {
+        $value = get_option('feedback_voting_prevent_multiple', 0);
+        ?>
+        <label for="feedback_voting_prevent_multiple">
+            <input type="checkbox" id="feedback_voting_prevent_multiple" name="feedback_voting_prevent_multiple" value="1" <?php checked($value, 1); ?> />
+            <?php _e('Per Cookie verhindern, dass innerhalb von 24h mehrfach abgestimmt wird.', 'feedback-voting'); ?>
         </label>
         <?php
     }
@@ -597,8 +638,15 @@ class My_Feedback_Plugin_Admin {
                 <input type="submit" class="button button-secondary" value="<?php esc_attr_e('Alle Feedback-Einträge löschen', 'feedback-voting'); ?>" onclick="return confirm('<?php _e('Wirklich alle Feedback-Einträge löschen?', 'feedback-voting'); ?>');"/>
             </form>
 
-            <hr>
-            <h2><?php _e('Einstellungen', 'feedback-voting'); ?></h2>
+        </div>
+        <?php
+    }
+
+    /** Render settings page */
+    public function render_settings_page() {
+        ?>
+        <div class="wrap">
+            <h1><?php _e('Feedback Voting Einstellungen', 'feedback-voting'); ?></h1>
             <form method="post" action="options.php">
                 <?php settings_fields('feedback_voting_settings_group'); do_settings_sections('feedback_voting_settings'); submit_button(); ?>
             </form>
