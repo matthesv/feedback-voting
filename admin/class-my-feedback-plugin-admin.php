@@ -31,6 +31,23 @@ class My_Feedback_Plugin_Admin {
             filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'admin/js/admin.js'),
             true
         );
+
+        if ($hook === 'toplevel_page_feedback-voting') {
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js',
+                array(),
+                null,
+                true
+            );
+            wp_enqueue_script(
+                'feedback-voting-chart',
+                FEEDBACK_VOTING_PLUGIN_URL . 'admin/js/feedback-chart.js',
+                array('jquery', 'chartjs'),
+                filemtime(FEEDBACK_VOTING_PLUGIN_DIR . 'admin/js/feedback-chart.js'),
+                true
+            );
+        }
     }
 
     /**
@@ -498,14 +515,15 @@ class My_Feedback_Plugin_Admin {
         $total_no  = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table_name} WHERE vote = 'no'");
 
         $results = $wpdb->get_results(
-            "SELECT question,
+            "SELECT post_id,
+                    question,
                     SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END) AS total_yes,
                     SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END) AS total_no
-             FROM {$table_name}
-             GROUP BY question
-             ORDER BY (SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END)
-                     + SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END)) DESC
-             LIMIT 10"
+               FROM {$table_name}
+              GROUP BY post_id, question
+              ORDER BY (SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END)
+                      + SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END)) DESC
+              LIMIT 10"
         );
 
         $per_page = 20;
@@ -538,6 +556,22 @@ class My_Feedback_Plugin_Admin {
         if ($selected_post_id) {
             $base_url = add_query_arg('post_id_filter', $selected_post_id, $base_url);
         }
+
+        $chart_labels = array();
+        $chart_yes    = array();
+        $chart_no     = array();
+        foreach ($results as $r) {
+            $label = $r->post_id . ': ' . $r->question;
+            $chart_labels[] = $label;
+            $chart_yes[]    = (int) $r->total_yes;
+            $chart_no[]     = (int) $r->total_no;
+        }
+        wp_localize_script('feedback-voting-chart', 'feedbackChartData', array(
+            'labels' => $chart_labels,
+            'yes'    => $chart_yes,
+            'no'     => $chart_no,
+        ));
+
         $pagination = paginate_links(array(
             'base'      => $base_url . '&paged=%#%',
             'format'    => '',
@@ -556,9 +590,12 @@ class My_Feedback_Plugin_Admin {
             <p><strong><?php _e('Anzahl "Nein":', 'feedback-voting'); ?></strong> <?php echo $total_no; ?></p>
 
             <h2><?php _e('Top Fragen', 'feedback-voting'); ?></h2>
+            <canvas id="feedback-chart-canvas" style="max-width:100%;height:400px;"></canvas>
+            <p><button id="download-chart" class="button">PNG herunterladen</button></p>
             <table class="widefat fixed striped">
                 <thead>
                     <tr>
+                        <th><?php _e('Post ID', 'feedback-voting'); ?></th>
                         <th><?php _e('Frage', 'feedback-voting'); ?></th>
                         <th><?php _e('"Ja" Stimmen', 'feedback-voting'); ?></th>
                         <th><?php _e('"Nein" Stimmen', 'feedback-voting'); ?></th>
@@ -568,6 +605,7 @@ class My_Feedback_Plugin_Admin {
                 <?php if (!empty($results)) : ?>
                     <?php foreach ($results as $row) : ?>
                         <tr>
+                            <td><?php echo intval($row->post_id); ?></td>
                             <td><?php echo esc_html($row->question); ?></td>
                             <td><?php echo intval($row->total_yes); ?></td>
                             <td><?php echo intval($row->total_no); ?></td>
@@ -575,7 +613,7 @@ class My_Feedback_Plugin_Admin {
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="3"><?php _e('Keine Daten vorhanden.', 'feedback-voting'); ?></td>
+                        <td colspan="4"><?php _e('Keine Daten vorhanden.', 'feedback-voting'); ?></td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
