@@ -22,6 +22,8 @@
   margin: 0;
   font-weight: normal;
   color: #1b1c1c;
+  display: flex;
+  align-items: center;
 }
 
 .feedback-button {
