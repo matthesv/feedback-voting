@@ -113,6 +113,11 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'sanitize_hex_color',
             'default'           => '#005b8d',
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_text_color', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'default'           => '#1b1c1c',
+        ));
         register_setting('feedback_voting_settings_group', 'feedback_voting_border_radius', array(
             'type'              => 'string',
             'sanitize_callback' => 'sanitize_text_field',
@@ -296,6 +301,18 @@ class My_Feedback_Plugin_Admin {
                 'option_name' => 'feedback_voting_button_hover_color',
                 'label_for'   => 'feedback_voting_button_hover_color',
                 'default'     => '#005b8d',
+            )
+        );
+        add_settings_field(
+            'feedback_voting_text_color',
+            __('Text-Farbe', 'feedback-voting'),
+            array($this, 'color_field_render'),
+            'feedback_voting_settings',
+            'feedback_voting_appearance_section',
+            array(
+                'option_name' => 'feedback_voting_text_color',
+                'label_for'   => 'feedback_voting_text_color',
+                'default'     => '#1b1c1c',
             )
         );
         add_settings_field(
