@@ -668,13 +668,7 @@ class My_Feedback_Plugin_Admin {
         $chart_yes    = array();
         $chart_no     = array();
         foreach ($results as $r) {
-            $post_title = get_the_title($r->post_id);
-            if (empty($post_title)) {
-                $post_title = __('Keine Zuordnung', 'feedback-voting');
-            }
-            $post_title_short = mb_substr($post_title, 0, 30);
-            $label = $r->post_id . ': ' . $post_title_short . ' - ' . $r->question;
-            $chart_labels[] = $label;
+            $chart_labels[] = (string) $r->post_id;
             $chart_yes[]    = (int) $r->total_yes;
             $chart_no[]     = (int) $r->total_no;
         }
