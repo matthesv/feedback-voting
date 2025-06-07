@@ -2,7 +2,7 @@
 
 This plugin adds a simple voting system with optional feedback field. PHPUnit tests require the WordPress testing framework.
 
-Since version 1.3.2 you can customize button labels and the border radius for the feedback and score boxes. Version 1.3.1 allowed multiple `[feedback_score]` shortcodes on one page. The shortcode was introduced in 1.3.0. Version 1.2.11 added configurable box width and improved dark mode labels. Version 1.3.3 introduced layout options for the score box including alignment and text wrapping. The latest update adds padding inside the score box and centers the text.
+Since version 1.3.2 you can customize button labels and the border radius for the feedback and score boxes. Version 1.3.1 allowed multiple `[feedback_score]` shortcodes on one page. The shortcode was introduced in 1.3.0. Version 1.2.11 added configurable box width and improved dark mode labels. Version 1.3.3 introduced layout options for the score box including alignment and text wrapping. Version 1.3.4 added padding inside the score box and centered the text. The latest update ensures consistent spacing on all sides and shows the score as "x/5".
 
 ## Installing the WordPress testing framework
 

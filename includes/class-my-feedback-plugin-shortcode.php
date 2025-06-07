@@ -131,7 +131,7 @@ class My_Feedback_Plugin_Shortcode {
         ?>
         <div id="<?php echo esc_attr( $unique_id ); ?>" class="<?php echo esc_attr( $class_attr ); ?>">
             <small class="feedback-score-label"><?php echo esc_html($label); ?></small>
-            <span class="feedback-score-value"><?php echo number_format($score, 1); ?></span>
+            <span class="feedback-score-value"><?php echo number_format($score, 1) . '/5'; ?></span>
         </div>
         <?php
         return ob_get_clean();
