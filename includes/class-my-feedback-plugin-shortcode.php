@@ -30,6 +30,10 @@ class My_Feedback_Plugin_Shortcode {
         // Generate unique ID for textarea and label to avoid conflicts
         $unique_id = 'feedback-no-text-' . uniqid();
 
+        $yes_label    = get_option('feedback_voting_yes_label', __('Ja, war sie', 'feedback-voting'));
+        $no_label     = get_option('feedback_voting_no_label', __('Nein, leider nicht', 'feedback-voting'));
+        $submit_label = get_option('feedback_voting_submit_label', __('Feedback senden', 'feedback-voting'));
+
         ob_start();
         ?>
         <!-- Hauptcontainer mit Rahmen -->
@@ -43,13 +47,13 @@ class My_Feedback_Plugin_Shortcode {
                 <!-- Daumen hoch -->
                 <button class="feedback-button feedback-yes" data-vote="yes">
                     <span class="dashicons dashicons-thumbs-up"></span>
-                    <span class="button-text"><?php _e('Ja, war sie', 'feedback-voting'); ?></span>
+                    <span class="button-text"><?php echo esc_html($yes_label); ?></span>
                 </button>
 
                 <!-- Daumen runter -->
                 <button class="feedback-button feedback-no" data-vote="no">
                     <span class="dashicons dashicons-thumbs-down"></span>
-                    <span class="button-text"><?php _e('Nein, leider nicht', 'feedback-voting'); ?></span>
+                    <span class="button-text"><?php echo esc_html($no_label); ?></span>
                 </button>
             </div>
         </div>
@@ -67,7 +71,7 @@ class My_Feedback_Plugin_Shortcode {
             ></textarea>
 
             <button class="feedback-button feedback-submit-no">
-                <span class="button-text"><?php _e('Feedback senden', 'feedback-voting'); ?></span>
+                <span class="button-text"><?php echo esc_html($submit_label); ?></span>
             </button>
         </div>
         <?php

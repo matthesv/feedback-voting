@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.3.1
+Version:     1.3.2
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.3.1');
+define('FEEDBACK_VOTING_VERSION', '1.3.2');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -57,6 +57,8 @@ function feedback_voting_enqueue_scripts() {
     $button_color      = get_option('feedback_voting_button_color', $primary_color);
     $hover_color       = get_option('feedback_voting_button_hover_color', '#005b8d');
     $border_radius     = get_option('feedback_voting_border_radius', '9999px');
+    $container_radius  = get_option('feedback_voting_container_radius', '6rem');
+    $score_radius      = get_option('feedback_voting_score_radius', '6px');
     $box_width         = absint(get_option('feedback_voting_box_width', 100));
     $custom_css = "
         :root {
@@ -64,6 +66,8 @@ function feedback_voting_enqueue_scripts() {
             --fv-button-color: {$button_color};
             --fv-button-hover-color: {$hover_color};
             --fv-border-radius: {$border_radius};
+            --fv-container-radius: {$container_radius};
+            --fv-score-radius: {$score_radius};
             --fv-box-width: {$box_width}%;
         }
     ";

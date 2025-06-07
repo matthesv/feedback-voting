@@ -73,6 +73,31 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => '9999px',
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_yes_label', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => __('Ja, war sie', 'feedback-voting'),
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_no_label', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => __('Nein, leider nicht', 'feedback-voting'),
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_container_radius', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => '6rem',
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_score_radius', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => '6px',
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_submit_label', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => __('Feedback senden', 'feedback-voting'),
+        ));
         register_setting('feedback_voting_settings_group', 'feedback_voting_before_text', array(
             'type'              => 'string',
             'sanitize_callback' => 'wp_kses_post',
@@ -167,6 +192,41 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_settings',
             'feedback_voting_settings_section'
         );
+        add_settings_field(
+            'feedback_voting_yes_label',
+            __('Text Button "Ja"', 'feedback-voting'),
+            array($this, 'yes_label_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
+        add_settings_field(
+            'feedback_voting_no_label',
+            __('Text Button "Nein"', 'feedback-voting'),
+            array($this, 'no_label_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
+        add_settings_field(
+            'feedback_voting_container_radius',
+            __('Box-Rundungen (CSS)', 'feedback-voting'),
+            array($this, 'container_radius_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
+        add_settings_field(
+            'feedback_voting_score_radius',
+            __('Score-Box-Rundungen (CSS)', 'feedback-voting'),
+            array($this, 'score_radius_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
+        add_settings_field(
+            'feedback_voting_submit_label',
+            __('Beschriftung Feedback-Button', 'feedback-voting'),
+            array($this, 'submit_label_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
     }
 
     /** Render Checkbox für Freitext-Feld */
@@ -229,6 +289,51 @@ class My_Feedback_Plugin_Admin {
         $value = get_option('feedback_voting_score_label', __('Euer Score', 'feedback-voting'));
         printf(
             '<input type="text" id="feedback_voting_score_label" name="feedback_voting_score_label" value="%s" class="regular-text" />',
+            esc_attr($value)
+        );
+    }
+
+    /** Render input for the yes button label */
+    public function yes_label_render() {
+        $value = get_option('feedback_voting_yes_label', __('Ja, war sie', 'feedback-voting'));
+        printf(
+            '<input type="text" id="feedback_voting_yes_label" name="feedback_voting_yes_label" value="%s" class="regular-text" />',
+            esc_attr($value)
+        );
+    }
+
+    /** Render input for the no button label */
+    public function no_label_render() {
+        $value = get_option('feedback_voting_no_label', __('Nein, leider nicht', 'feedback-voting'));
+        printf(
+            '<input type="text" id="feedback_voting_no_label" name="feedback_voting_no_label" value="%s" class="regular-text" />',
+            esc_attr($value)
+        );
+    }
+
+    /** Render input for feedback box radius */
+    public function container_radius_render() {
+        $value = get_option('feedback_voting_container_radius', '6rem');
+        printf(
+            '<input type="text" id="feedback_voting_container_radius" name="feedback_voting_container_radius" value="%s" />',
+            esc_attr($value)
+        );
+    }
+
+    /** Render input for score box radius */
+    public function score_radius_render() {
+        $value = get_option('feedback_voting_score_radius', '6px');
+        printf(
+            '<input type="text" id="feedback_voting_score_radius" name="feedback_voting_score_radius" value="%s" />',
+            esc_attr($value)
+        );
+    }
+
+    /** Render input for submit button label */
+    public function submit_label_render() {
+        $value = get_option('feedback_voting_submit_label', __('Feedback senden', 'feedback-voting'));
+        printf(
+            '<input type="text" id="feedback_voting_submit_label" name="feedback_voting_submit_label" value="%s" class="regular-text" />',
             esc_attr($value)
         );
     }
