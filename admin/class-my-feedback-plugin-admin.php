@@ -173,6 +173,26 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => 'top',
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_auto_post', array(
+            'type'              => 'boolean',
+            'sanitize_callback' => 'absint',
+            'default'           => 0,
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_auto_page', array(
+            'type'              => 'boolean',
+            'sanitize_callback' => 'absint',
+            'default'           => 0,
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_auto_score', array(
+            'type'              => 'boolean',
+            'sanitize_callback' => 'absint',
+            'default'           => 0,
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_auto_question', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => __('War dieser Beitrag hilfreich?', 'feedback-voting'),
+        ));
 
         add_settings_section(
             'feedback_voting_general_section',
@@ -211,6 +231,34 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_schema_rating',
             __('Score als Sterne-Markup ausgeben?', 'feedback-voting'),
             array($this, 'schema_rating_render'),
+            'feedback_voting_settings',
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
+            'feedback_voting_auto_post',
+            __('Feedback automatisch unter Beiträgen anzeigen?', 'feedback-voting'),
+            array($this, 'auto_post_render'),
+            'feedback_voting_settings',
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
+            'feedback_voting_auto_page',
+            __('Feedback automatisch unter Seiten anzeigen?', 'feedback-voting'),
+            array($this, 'auto_page_render'),
+            'feedback_voting_settings',
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
+            'feedback_voting_auto_score',
+            __('Score nach dem Feedback anzeigen?', 'feedback-voting'),
+            array($this, 'auto_score_render'),
+            'feedback_voting_settings',
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
+            'feedback_voting_auto_question',
+            __('Standardfrage für automatisches Feedback', 'feedback-voting'),
+            array($this, 'auto_question_render'),
             'feedback_voting_settings',
             'feedback_voting_general_section'
         );
@@ -500,6 +548,48 @@ class My_Feedback_Plugin_Admin {
             <option value="bottom" <?php selected($value, 'bottom'); ?>><?php _e('Label unten', 'feedback-voting'); ?></option>
         </select>
         <?php
+    }
+
+    /** Render checkbox for auto post insertion */
+    public function auto_post_render() {
+        $value = get_option('feedback_voting_auto_post', 0);
+        ?>
+        <label for="feedback_voting_auto_post">
+            <input type="checkbox" id="feedback_voting_auto_post" name="feedback_voting_auto_post" value="1" <?php checked($value, 1); ?> />
+            <?php _e('Automatisch unter Beiträgen anzeigen', 'feedback-voting'); ?>
+        </label>
+        <?php
+    }
+
+    /** Render checkbox for auto page insertion */
+    public function auto_page_render() {
+        $value = get_option('feedback_voting_auto_page', 0);
+        ?>
+        <label for="feedback_voting_auto_page">
+            <input type="checkbox" id="feedback_voting_auto_page" name="feedback_voting_auto_page" value="1" <?php checked($value, 1); ?> />
+            <?php _e('Automatisch unter Seiten anzeigen', 'feedback-voting'); ?>
+        </label>
+        <?php
+    }
+
+    /** Render checkbox for auto score display */
+    public function auto_score_render() {
+        $value = get_option('feedback_voting_auto_score', 0);
+        ?>
+        <label for="feedback_voting_auto_score">
+            <input type="checkbox" id="feedback_voting_auto_score" name="feedback_voting_auto_score" value="1" <?php checked($value, 1); ?> />
+            <?php _e('Score mit anzeigen', 'feedback-voting'); ?>
+        </label>
+        <?php
+    }
+
+    /** Render input for auto question */
+    public function auto_question_render() {
+        $value = get_option('feedback_voting_auto_question', __('War dieser Beitrag hilfreich?', 'feedback-voting'));
+        printf(
+            '<input type="text" id="feedback_voting_auto_question" name="feedback_voting_auto_question" value="%s" class="regular-text" />',
+            esc_attr($value)
+        );
     }
 
     /** Admin-Dashboard rendern */

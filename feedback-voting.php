@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.6.0
+Version:     1.7.0
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.6.0');
+define('FEEDBACK_VOTING_VERSION', '1.7.0');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -132,3 +132,38 @@ function feedback_voting_output_schema() {
     echo '<script type="application/ld+json">' . wp_json_encode($data) . '</script>' . "\n";
 }
 add_action('wp_footer', 'feedback_voting_output_schema');
+
+/**
+ * Append feedback shortcode automatically to posts or pages.
+ */
+function feedback_voting_auto_append($content) {
+    if (is_admin()) {
+        return $content;
+    }
+
+    $append = false;
+    if (is_singular('post') && get_option('feedback_voting_auto_post', 0)) {
+        $append = true;
+    }
+    if (is_page() && get_option('feedback_voting_auto_page', 0)) {
+        $append = true;
+    }
+
+    if (!$append) {
+        return $content;
+    }
+
+    $question = get_option(
+        'feedback_voting_auto_question',
+        __('War dieser Beitrag hilfreich?', 'feedback-voting')
+    );
+
+    $shortcode  = '[feedback_voting question="' . esc_attr($question) . '"]';
+
+    if (get_option('feedback_voting_auto_score', 0)) {
+        $shortcode .= ' [feedback_score question="' . esc_attr($question) . '" post_id="' . get_the_ID() . '"]';
+    }
+
+    return $content . do_shortcode($shortcode);
+}
+add_filter('the_content', 'feedback_voting_auto_append');
