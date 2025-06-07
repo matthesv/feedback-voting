@@ -113,11 +113,23 @@ class My_Feedback_Plugin_Shortcode {
 
         $score = $total > 0 ? ($yes * 5 + $no) / $total : 0;
 
-        $label = get_option('feedback_voting_score_label', __('Euer Score', 'feedback-voting'));
+        $label     = get_option('feedback_voting_score_label', __('Euer Score', 'feedback-voting'));
+        $alignment = get_option('feedback_voting_score_alignment', 'left');
+        $wrap      = get_option('feedback_voting_score_wrap', 'none');
+        $label_pos = get_option('feedback_voting_score_label_position', 'top');
+
+        $classes = array('feedback-score-box', 'fv-align-' . $alignment);
+        if ($wrap !== 'none') {
+            $classes[] = 'fv-wrap-' . $wrap;
+        }
+        if ($label_pos === 'bottom') {
+            $classes[] = 'fv-label-bottom';
+        }
+        $class_attr = implode(' ', array_map('sanitize_html_class', $classes));
 
         ob_start();
         ?>
-        <div id="<?php echo esc_attr( $unique_id ); ?>" class="feedback-score-box">
+        <div id="<?php echo esc_attr( $unique_id ); ?>" class="<?php echo esc_attr( $class_attr ); ?>">
             <small class="feedback-score-label"><?php echo esc_html($label); ?></small>
             <span class="feedback-score-value"><?php echo number_format($score, 1); ?></span>
         </div>
