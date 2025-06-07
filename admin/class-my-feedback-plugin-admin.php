@@ -113,10 +113,37 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => __('Euer Score', 'feedback-voting'),
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_score_alignment', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => 'left',
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_score_wrap', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => 'none',
+        ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_score_label_position', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => 'top',
+        ));
 
         add_settings_section(
-            'feedback_voting_settings_section',
-            __('Feedback Voting Einstellungen', 'feedback-voting'),
+            'feedback_voting_general_section',
+            __('Allgemein', 'feedback-voting'),
+            null,
+            'feedback_voting_settings'
+        );
+        add_settings_section(
+            'feedback_voting_appearance_section',
+            __('Design & Styling', 'feedback-voting'),
+            null,
+            'feedback_voting_settings'
+        );
+        add_settings_section(
+            'feedback_voting_score_section',
+            __('Score Box Layout', 'feedback-voting'),
             null,
             'feedback_voting_settings'
         );
@@ -126,14 +153,14 @@ class My_Feedback_Plugin_Admin {
             __('Freitext-Feld bei "Nein" aktivieren?', 'feedback-voting'),
             array($this, 'feedback_field_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_general_section'
         );
         add_settings_field(
             'feedback_voting_primary_color',
             __('Primär-Farbe', 'feedback-voting'),
             array($this, 'color_field_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section',
+            'feedback_voting_appearance_section',
             array(
                 'option_name' => 'feedback_voting_primary_color',
                 'label_for'   => 'feedback_voting_primary_color',
@@ -145,7 +172,7 @@ class My_Feedback_Plugin_Admin {
             __('Button-Farbe', 'feedback-voting'),
             array($this, 'color_field_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section',
+            'feedback_voting_appearance_section',
             array(
                 'option_name' => 'feedback_voting_button_color',
                 'label_for'   => 'feedback_voting_button_color',
@@ -157,7 +184,7 @@ class My_Feedback_Plugin_Admin {
             __('Button Hover-Farbe', 'feedback-voting'),
             array($this, 'color_field_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section',
+            'feedback_voting_appearance_section',
             array(
                 'option_name' => 'feedback_voting_button_hover_color',
                 'label_for'   => 'feedback_voting_button_hover_color',
@@ -169,63 +196,84 @@ class My_Feedback_Plugin_Admin {
             __('Button-Rundungen (CSS)', 'feedback-voting'),
             array($this, 'border_radius_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_appearance_section'
         );
         add_settings_field(
             'feedback_voting_before_text',
             __('Text oberhalb des Feedback-Felds', 'feedback-voting'),
             array($this, 'before_text_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_general_section'
         );
         add_settings_field(
             'feedback_voting_box_width',
             __('Box-Breite (%)', 'feedback-voting'),
             array($this, 'box_width_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_appearance_section'
         );
         add_settings_field(
             'feedback_voting_score_label',
             __('Text innerhalb der Score-Box', 'feedback-voting'),
             array($this, 'score_label_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_general_section'
         );
         add_settings_field(
             'feedback_voting_yes_label',
             __('Text Button "Ja"', 'feedback-voting'),
             array($this, 'yes_label_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_general_section'
         );
         add_settings_field(
             'feedback_voting_no_label',
             __('Text Button "Nein"', 'feedback-voting'),
             array($this, 'no_label_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_general_section'
         );
         add_settings_field(
             'feedback_voting_container_radius',
             __('Box-Rundungen (CSS)', 'feedback-voting'),
             array($this, 'container_radius_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_appearance_section'
         );
         add_settings_field(
             'feedback_voting_score_radius',
             __('Score-Box-Rundungen (CSS)', 'feedback-voting'),
             array($this, 'score_radius_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_appearance_section'
         );
         add_settings_field(
             'feedback_voting_submit_label',
             __('Beschriftung Feedback-Button', 'feedback-voting'),
             array($this, 'submit_label_render'),
             'feedback_voting_settings',
-            'feedback_voting_settings_section'
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
+            'feedback_voting_score_alignment',
+            __('Ausrichtung der Score-Box', 'feedback-voting'),
+            array($this, 'score_alignment_render'),
+            'feedback_voting_settings',
+            'feedback_voting_score_section'
+        );
+        add_settings_field(
+            'feedback_voting_score_wrap',
+            __('Textumfluss um die Score-Box', 'feedback-voting'),
+            array($this, 'score_wrap_render'),
+            'feedback_voting_settings',
+            'feedback_voting_score_section'
+        );
+        add_settings_field(
+            'feedback_voting_score_label_position',
+            __('Position des Labels', 'feedback-voting'),
+            array($this, 'score_label_position_render'),
+            'feedback_voting_settings',
+            'feedback_voting_score_section'
         );
     }
 
@@ -336,6 +384,41 @@ class My_Feedback_Plugin_Admin {
             '<input type="text" id="feedback_voting_submit_label" name="feedback_voting_submit_label" value="%s" class="regular-text" />',
             esc_attr($value)
         );
+    }
+
+    /** Render select for score alignment */
+    public function score_alignment_render() {
+        $value = get_option('feedback_voting_score_alignment', 'left');
+        ?>
+        <select id="feedback_voting_score_alignment" name="feedback_voting_score_alignment">
+            <option value="left" <?php selected($value, 'left'); ?>><?php _e('Links', 'feedback-voting'); ?></option>
+            <option value="center" <?php selected($value, 'center'); ?>><?php _e('Zentriert', 'feedback-voting'); ?></option>
+            <option value="right" <?php selected($value, 'right'); ?>><?php _e('Rechts', 'feedback-voting'); ?></option>
+        </select>
+        <?php
+    }
+
+    /** Render select for score wrap */
+    public function score_wrap_render() {
+        $value = get_option('feedback_voting_score_wrap', 'none');
+        ?>
+        <select id="feedback_voting_score_wrap" name="feedback_voting_score_wrap">
+            <option value="none" <?php selected($value, 'none'); ?>><?php _e('Kein Textumfluss', 'feedback-voting'); ?></option>
+            <option value="left" <?php selected($value, 'left'); ?>><?php _e('Textumfluss links', 'feedback-voting'); ?></option>
+            <option value="right" <?php selected($value, 'right'); ?>><?php _e('Textumfluss rechts', 'feedback-voting'); ?></option>
+        </select>
+        <?php
+    }
+
+    /** Render select for label position */
+    public function score_label_position_render() {
+        $value = get_option('feedback_voting_score_label_position', 'top');
+        ?>
+        <select id="feedback_voting_score_label_position" name="feedback_voting_score_label_position">
+            <option value="top" <?php selected($value, 'top'); ?>><?php _e('Label oben', 'feedback-voting'); ?></option>
+            <option value="bottom" <?php selected($value, 'bottom'); ?>><?php _e('Label unten', 'feedback-voting'); ?></option>
+        </select>
+        <?php
     }
 
     /** Admin-Dashboard rendern */
