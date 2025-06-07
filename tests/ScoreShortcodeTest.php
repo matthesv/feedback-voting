@@ -24,7 +24,7 @@ class Score_Shortcode_Test extends WP_UnitTestCase {
         ] );
 
         $output = do_shortcode( '[feedback_score question="Q1" post_id="1"]' );
-        $this->assertStringContainsString( '3.0', $output );
+        $this->assertStringContainsString( '3.0/5', $output );
     }
 
     public function test_multiple_score_shortcodes_on_page() {
@@ -50,8 +50,8 @@ class Score_Shortcode_Test extends WP_UnitTestCase {
 
         $output = do_shortcode( '[feedback_score question="Q1" post_id="2"][feedback_score question="Q2" post_id="2"]' );
 
-        $this->assertStringContainsString( '5.0', $output );
-        $this->assertStringContainsString( '1.0', $output );
+        $this->assertStringContainsString( '5.0/5', $output );
+        $this->assertStringContainsString( '1.0/5', $output );
     }
 }
 
