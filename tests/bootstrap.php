@@ -13,6 +13,7 @@ if ( ! defined( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH' ) ) {
 require_once $_tests_dir . '/includes/functions.php';
 
 function _manually_load_plugin() {
+    add_filter( 'pre_http_request', '__return_true' );
     require dirname( __DIR__ ) . '/feedback-voting.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );

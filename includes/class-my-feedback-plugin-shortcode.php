@@ -7,6 +7,7 @@ class My_Feedback_Plugin_Shortcode {
 
     public function __construct() {
         add_shortcode('feedback_voting', array($this, 'render_shortcode'));
+        add_shortcode('feedback_score', array($this, 'render_score_shortcode'));
     }
 
     /**
@@ -68,6 +69,53 @@ class My_Feedback_Plugin_Shortcode {
             <button class="feedback-button feedback-submit-no">
                 <span class="button-text"><?php _e('Feedback senden', 'feedback-voting'); ?></span>
             </button>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Renders the [feedback_score] shortcode displaying the average score
+     * for a question/post combination. Each "yes" counts as 5 and each
+     * "no" counts as 1.
+     */
+    public function render_score_shortcode($atts) {
+        global $wpdb, $post;
+
+        $atts = shortcode_atts(array(
+            'question' => __('War diese Antwort hilfreich?', 'feedback-voting'),
+            'post_id'  => isset($post->ID) ? $post->ID : 0,
+        ), $atts, 'feedback_score');
+
+        $question = $atts['question'];
+        $post_id  = intval($atts['post_id']);
+        $unique_id = 'feedback-score-' . uniqid();
+
+        $table = $wpdb->prefix . 'feedback_votes';
+        $row   = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT SUM(CASE WHEN vote='yes' THEN 1 ELSE 0 END) AS yes_count,
+                        SUM(CASE WHEN vote='no' THEN 1 ELSE 0 END) AS no_count
+                   FROM {$table}
+                  WHERE question = %s AND post_id = %d",
+                $question,
+                $post_id
+            )
+        );
+
+        $yes = intval($row->yes_count);
+        $no  = intval($row->no_count);
+        $total = $yes + $no;
+
+        $score = $total > 0 ? ($yes * 5 + $no) / $total : 0;
+
+        $label = get_option('feedback_voting_score_label', __('Euer Score', 'feedback-voting'));
+
+        ob_start();
+        ?>
+        <div id="<?php echo esc_attr( $unique_id ); ?>" class="feedback-score-box">
+            <small class="feedback-score-label"><?php echo esc_html($label); ?></small>
+            <span class="feedback-score-value"><?php echo number_format($score, 1); ?></span>
         </div>
         <?php
         return ob_get_clean();
