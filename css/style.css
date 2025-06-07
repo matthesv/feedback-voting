@@ -80,19 +80,6 @@
   margin: 0 0 1rem 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  .feedback-voting-container {
-    /* Maintain the same border color in dark mode */
-    border-color: var(--fv-primary, #0073aa) !important;
-  }
-  .feedback-question,
-  .feedback-no-text-box,
-  .feedback-no-text-box label,
-  .feedback-thankyou {
-    /* Use bright white text so labels stay readable */
-    color: #ffffff !important;
-  }
-}
 
 @media only screen and (max-width: 600px) {
   .feedback-button.feedback-yes .button-text,
