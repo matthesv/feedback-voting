@@ -651,7 +651,12 @@ class My_Feedback_Plugin_Admin {
         $chart_yes    = array();
         $chart_no     = array();
         foreach ($results as $r) {
-            $label = $r->post_id . ': ' . $r->question;
+            $post_title = get_the_title($r->post_id);
+            if (empty($post_title)) {
+                $post_title = __('Keine Zuordnung', 'feedback-voting');
+            }
+            $post_title_short = mb_substr($post_title, 0, 30);
+            $label = $r->post_id . ': ' . $post_title_short . ' - ' . $r->question;
             $chart_labels[] = $label;
             $chart_yes[]    = (int) $r->total_yes;
             $chart_no[]     = (int) $r->total_no;
@@ -686,6 +691,7 @@ class My_Feedback_Plugin_Admin {
                 <thead>
                     <tr>
                         <th><?php _e('Post ID', 'feedback-voting'); ?></th>
+                        <th><?php _e('Titel', 'feedback-voting'); ?></th>
                         <th><?php _e('Frage', 'feedback-voting'); ?></th>
                         <th><?php _e('"Ja" Stimmen', 'feedback-voting'); ?></th>
                         <th><?php _e('"Nein" Stimmen', 'feedback-voting'); ?></th>
@@ -693,9 +699,16 @@ class My_Feedback_Plugin_Admin {
                 </thead>
                 <tbody>
                 <?php if (!empty($results)) : ?>
-                    <?php foreach ($results as $row) : ?>
+                    <?php foreach ($results as $row) :
+                        $post_title = get_the_title($row->post_id);
+                        if (empty($post_title)) {
+                            $post_title = __('Keine Zuordnung', 'feedback-voting');
+                        }
+                        $post_title_short = mb_substr($post_title, 0, 30);
+                    ?>
                         <tr>
                             <td><?php echo intval($row->post_id); ?></td>
+                            <td><?php echo esc_html($post_title_short); ?></td>
                             <td><?php echo esc_html($row->question); ?></td>
                             <td><?php echo intval($row->total_yes); ?></td>
                             <td><?php echo intval($row->total_no); ?></td>
@@ -703,7 +716,7 @@ class My_Feedback_Plugin_Admin {
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="4"><?php _e('Keine Daten vorhanden.', 'feedback-voting'); ?></td>
+                        <td colspan="5"><?php _e('Keine Daten vorhanden.', 'feedback-voting'); ?></td>
                     </tr>
                 <?php endif; ?>
                 </tbody>
