@@ -1,7 +1,29 @@
 jQuery(function($) {
 
-    // Globale Einstellung, ob das Freitextfeld bei "Nein" aktiviert ist:
+    // Globale Einstellungen
     var enableFeedbackField = feedbackVoting.enableFeedbackField;
+    var preventMultiple    = feedbackVoting.preventMultiple === '1';
+
+    function setCookie(name, value, hours) {
+        var expires = '';
+        if (hours) {
+            var date = new Date();
+            date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+            expires = '; expires=' + date.toUTCString();
+        }
+        document.cookie = name + '=' + (value || '') + expires + '; path=/';
+    }
+
+    function getCookie(name) {
+        var nameEQ = name + '=';
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
 
     // Klick auf "Ja" oder "Nein"
     $(document).on('click', '.feedback-voting-container .feedback-button', function(e) {
@@ -13,6 +35,12 @@ jQuery(function($) {
         var question = container.data('question');
         var postId = container.data('postid') || 0;
         var vote = $(this).data('vote');
+        var cookieName = 'fv_' + encodeURIComponent(question) + '_' + postId;
+
+        if (preventMultiple && getCookie(cookieName)) {
+            alert('Sie haben bereits abgestimmt.');
+            return;
+        }
 
         // "Ja" -> direkt speichern (Insert)
         if (vote === 'yes') {
@@ -26,6 +54,9 @@ jQuery(function($) {
                 '',
                 postId,
                 function onSuccess() {
+                    if (preventMultiple) {
+                        setCookie(cookieName, '1', 24);
+                    }
                     // Alles ausblenden + Danke-Text
                     showThankYou(container, noBox);
                 },
@@ -60,6 +91,9 @@ jQuery(function($) {
                         noBox.find('.feedback-submit-no').prop('disabled', false);
                     } else {
                         // Feedback-Feld ist deaktiviert -> direkt "Danke" anzeigen
+                        if (preventMultiple) {
+                            setCookie(cookieName, '1', 24);
+                        }
                         showThankYou(container, noBox);
                     }
                 },
@@ -81,6 +115,7 @@ jQuery(function($) {
         var question = container.data('question');
         var postId   = container.data('postid') || 0;
         var feedbackText = noBox.find('.feedback-no-text').val().trim();
+        var cookieName = 'fv_' + encodeURIComponent(question) + '_' + postId;
 
         // Die vote_id aus dem container holen (wurde beim ersten Klick auf "Nein" gesetzt).
         var existingVoteId = container.data('voteId');
@@ -96,6 +131,9 @@ jQuery(function($) {
             feedbackText,
             postId,
             function onSuccess() {
+                if (preventMultiple) {
+                    setCookie(cookieName, '1', 24);
+                }
                 // Danke einblenden
                 showThankYou(container, noBox);
             },
