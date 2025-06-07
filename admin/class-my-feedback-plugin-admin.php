@@ -76,6 +76,11 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'absint',
             'default'           => 0,
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_schema_rating', array(
+            'type'              => 'boolean',
+            'sanitize_callback' => 'absint',
+            'default'           => 0,
+        ));
         register_setting('feedback_voting_settings_group', 'feedback_voting_primary_color', array(
             'type'              => 'string',
             'sanitize_callback' => 'sanitize_hex_color',
@@ -182,6 +187,13 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_prevent_multiple',
             __('Mehrfach-Votes innerhalb 24h verhindern?', 'feedback-voting'),
             array($this, 'prevent_multiple_render'),
+            'feedback_voting_settings',
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
+            'feedback_voting_schema_rating',
+            __('Score als Sterne-Markup ausgeben?', 'feedback-voting'),
+            array($this, 'schema_rating_render'),
             'feedback_voting_settings',
             'feedback_voting_general_section'
         );
@@ -325,6 +337,17 @@ class My_Feedback_Plugin_Admin {
         <label for="feedback_voting_prevent_multiple">
             <input type="checkbox" id="feedback_voting_prevent_multiple" name="feedback_voting_prevent_multiple" value="1" <?php checked($value, 1); ?> />
             <?php _e('Per Cookie verhindern, dass innerhalb von 24h mehrfach abgestimmt wird.', 'feedback-voting'); ?>
+        </label>
+        <?php
+    }
+
+    /** Render checkbox for rating schema */
+    public function schema_rating_render() {
+        $value = get_option('feedback_voting_schema_rating', 0);
+        ?>
+        <label for="feedback_voting_schema_rating">
+            <input type="checkbox" id="feedback_voting_schema_rating" name="feedback_voting_schema_rating" value="1" <?php checked($value, 1); ?> />
+            <?php _e('Score als Sterne-Bewertung für Google ausgeben', 'feedback-voting'); ?>
         </label>
         <?php
     }
