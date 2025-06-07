@@ -83,6 +83,11 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'absint',
             'default'           => 100,
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_score_label', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => __('Euer Score', 'feedback-voting'),
+        ));
 
         add_settings_section(
             'feedback_voting_settings_section',
@@ -155,6 +160,13 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_settings',
             'feedback_voting_settings_section'
         );
+        add_settings_field(
+            'feedback_voting_score_label',
+            __('Text innerhalb der Score-Box', 'feedback-voting'),
+            array($this, 'score_label_render'),
+            'feedback_voting_settings',
+            'feedback_voting_settings_section'
+        );
     }
 
     /** Render Checkbox für Freitext-Feld */
@@ -209,6 +221,15 @@ class My_Feedback_Plugin_Admin {
         printf(
             '<input type="number" id="feedback_voting_box_width" name="feedback_voting_box_width" value="%d" min="10" max="100" />%%',
             intval($value)
+        );
+    }
+
+    /** Render input for the score label */
+    public function score_label_render() {
+        $value = get_option('feedback_voting_score_label', __('Euer Score', 'feedback-voting'));
+        printf(
+            '<input type="text" id="feedback_voting_score_label" name="feedback_voting_score_label" value="%s" class="regular-text" />',
+            esc_attr($value)
         );
     }
 

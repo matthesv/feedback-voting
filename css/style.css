@@ -104,3 +104,20 @@
   }
 }
 
+.feedback-score-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border: 2px solid var(--fv-primary, #0073aa);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.feedback-score-box small {
+  font-size: 0.75rem;
+}
+
