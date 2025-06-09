@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.7.7
+Version:     1.7.8
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.7.7');
+define('FEEDBACK_VOTING_VERSION', '1.7.8');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -126,11 +126,19 @@ function feedback_voting_output_schema() {
         return;
     }
     $data = array(
-        '@context' => 'https://schema.org',
-        '@type' => 'Article',
-        'name' => $feedback_voting_schema['name'],
+        '@context'      => 'https://schema.org',
+        '@type'         => 'Review',
+        'itemReviewed'  => array(
+            '@type' => 'Product',
+            'name'  => $feedback_voting_schema['name'],
+        ),
+        'reviewRating'  => array(
+            '@type'       => 'Rating',
+            'ratingValue' => number_format($feedback_voting_schema['score'], 1),
+            'bestRating'  => '5',
+        ),
         'aggregateRating' => array(
-            '@type' => 'AggregateRating',
+            '@type'       => 'AggregateRating',
             'ratingValue' => number_format($feedback_voting_schema['score'], 1),
             'ratingCount' => (int) $feedback_voting_schema['count'],
             'bestRating'  => '5',
