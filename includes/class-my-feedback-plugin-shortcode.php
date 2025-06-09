@@ -97,8 +97,8 @@ class My_Feedback_Plugin_Shortcode {
             'label_position'  => '',
         ), $atts, 'feedback_score');
 
-        $atts['schema_type'] = $atts['schema_type'] !== '' ? $atts['schema_type'] : feedback_voting_get_schema_type($atts['post_id']);
-        $atts['schema_rating'] = $atts['schema_rating'] !== '' ? $atts['schema_rating'] : ( feedback_voting_schema_disabled($atts['post_id']) ? 0 : get_option('feedback_voting_schema_rating', 0) );
+        $atts['schema_type']   = $atts['schema_type'] !== '' ? $atts['schema_type'] : feedback_voting_get_schema_type($atts['post_id']);
+        $atts['schema_rating'] = $atts['schema_rating'] !== '' ? $atts['schema_rating'] : 0;
 
         $question = $atts['question'];
         $post_id  = intval($atts['post_id']);

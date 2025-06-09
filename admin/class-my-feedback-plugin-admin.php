@@ -106,16 +106,6 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'absint',
             'default'           => 0,
         ));
-        register_setting('feedback_voting_settings_group', 'feedback_voting_schema_rating', array(
-            'type'              => 'boolean',
-            'sanitize_callback' => 'absint',
-            'default'           => 0,
-        ));
-        register_setting('feedback_voting_settings_group', 'feedback_voting_schema_type', array(
-            'type'              => 'string',
-            'sanitize_callback' => 'sanitize_text_field',
-            'default'           => 'Product',
-        ));
         register_setting('feedback_voting_settings_group', 'feedback_voting_primary_color', array(
             'type'              => 'string',
             'sanitize_callback' => 'sanitize_hex_color',
@@ -252,20 +242,6 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_prevent_multiple',
             __('Mehrfach-Votes innerhalb 24h verhindern?', 'feedback-voting'),
             array($this, 'prevent_multiple_render'),
-            'feedback_voting_settings',
-            'feedback_voting_general_section'
-        );
-        add_settings_field(
-            'feedback_voting_schema_rating',
-            __('Score als Sterne-Markup ausgeben?', 'feedback-voting'),
-            array($this, 'schema_rating_render'),
-            'feedback_voting_settings',
-            'feedback_voting_general_section'
-        );
-        add_settings_field(
-            'feedback_voting_schema_type',
-            __('Schema-Typ für Bewertungen', 'feedback-voting'),
-            array($this, 'schema_type_render'),
             'feedback_voting_settings',
             'feedback_voting_general_section'
         );
@@ -460,33 +436,6 @@ class My_Feedback_Plugin_Admin {
         <?php
     }
 
-    /** Render checkbox for rating schema */
-    public function schema_rating_render() {
-        $value = get_option('feedback_voting_schema_rating', 0);
-        ?>
-        <label for="feedback_voting_schema_rating">
-            <input type="checkbox" id="feedback_voting_schema_rating" name="feedback_voting_schema_rating" value="1" <?php checked($value, 1); ?> />
-            <?php _e('Score als Sterne-Bewertung für Google ausgeben', 'feedback-voting'); ?>
-        </label>
-        <?php
-    }
-
-    /** Render select for schema type */
-    public function schema_type_render() {
-        $value = get_option('feedback_voting_schema_type', 'Product');
-        ?>
-        <select id="feedback_voting_schema_type" name="feedback_voting_schema_type">
-            <option value="Book" <?php selected($value, 'Book'); ?>>Book</option>
-            <option value="Course" <?php selected($value, 'Course'); ?>>Course</option>
-            <option value="Event" <?php selected($value, 'Event'); ?>>Event</option>
-            <option value="LocalBusiness" <?php selected($value, 'LocalBusiness'); ?>>LocalBusiness</option>
-            <option value="Movie" <?php selected($value, 'Movie'); ?>>Movie</option>
-            <option value="Product" <?php selected($value, 'Product'); ?>>Product</option>
-            <option value="Recipe" <?php selected($value, 'Recipe'); ?>>Recipe</option>
-            <option value="SoftwareApplication" <?php selected($value, 'SoftwareApplication'); ?>>SoftwareApplication</option>
-        </select>
-        <?php
-    }
 
     /** Render Color-Picker-Felder */
     public function color_field_render($args) {
@@ -907,26 +856,9 @@ class My_Feedback_Plugin_Admin {
 
     /** Render the meta box */
     public function render_meta_box($post) {
-        $type        = get_post_meta($post->ID, '_feedback_voting_schema_type', true);
-        $disable     = get_post_meta($post->ID, '_feedback_voting_disable_snippets', true);
         $disable_auto = get_post_meta($post->ID, '_feedback_voting_disable_auto', true);
-        $allowed = array('Book','Course','Event','LocalBusiness','Movie','Product','Recipe','SoftwareApplication');
         wp_nonce_field('feedback_voting_meta_box', 'feedback_voting_meta_box_nonce');
         ?>
-        <p>
-            <label for="feedback_voting_schema_type"><strong><?php _e('Schema-Typ', 'feedback-voting'); ?></strong></label><br />
-            <select id="feedback_voting_schema_type" name="feedback_voting_schema_type">
-                <?php foreach ($allowed as $opt) : ?>
-                    <option value="<?php echo esc_attr($opt); ?>" <?php selected($type ?: get_option('feedback_voting_schema_type', 'Product'), $opt); ?>><?php echo esc_html($opt); ?></option>
-                <?php endforeach; ?>
-            </select>
-        </p>
-        <p>
-            <label>
-                <input type="checkbox" name="feedback_voting_disable_snippets" value="1" <?php checked($disable, '1'); ?> />
-                <?php _e('Bewertungs-Snippets für diesen Beitrag deaktivieren', 'feedback-voting'); ?>
-            </label>
-        </p>
         <p>
             <label>
                 <input type="checkbox" name="feedback_voting_disable_auto" value="1" <?php checked($disable_auto, '1'); ?> />
@@ -947,18 +879,6 @@ class My_Feedback_Plugin_Admin {
         if (!current_user_can('edit_post', $post_id)) {
             return;
         }
-
-        $allowed = array('Book','Course','Event','LocalBusiness','Movie','Product','Recipe','SoftwareApplication');
-        if (isset($_POST['feedback_voting_schema_type'])) {
-            $type = sanitize_text_field($_POST['feedback_voting_schema_type']);
-            if (!in_array($type, $allowed, true)) {
-                $type = get_option('feedback_voting_schema_type', 'Product');
-            }
-            update_post_meta($post_id, '_feedback_voting_schema_type', $type);
-        }
-
-        $disable = isset($_POST['feedback_voting_disable_snippets']) ? '1' : '0';
-        update_post_meta($post_id, '_feedback_voting_disable_snippets', $disable);
 
         $disable_auto = isset($_POST['feedback_voting_disable_auto']) ? '1' : '0';
         update_post_meta($post_id, '_feedback_voting_disable_auto', $disable_auto);
