@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.10.0
+Version:     1.11.0
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.10.0');
+define('FEEDBACK_VOTING_VERSION', '1.11.0');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -21,6 +21,7 @@ require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-db-
 require_once FEEDBACK_VOTING_PLUGIN_DIR . 'admin/class-my-feedback-plugin-admin.php';
 require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-shortcode.php';
 require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-ajax.php';
+require_once FEEDBACK_VOTING_PLUGIN_DIR . 'includes/class-my-feedback-plugin-block.php';
 
 register_activation_hook(__FILE__, array('My_Feedback_Plugin_DB_Manager', 'activate'));
 register_deactivation_hook(__FILE__, array('My_Feedback_Plugin_DB_Manager', 'deactivate'));
@@ -31,6 +32,7 @@ function feedback_voting_init() {
     new My_Feedback_Plugin_Admin();
     new My_Feedback_Plugin_Shortcode();
     new My_Feedback_Plugin_Ajax();
+    new My_Feedback_Plugin_Block();
 }
 add_action('plugins_loaded', 'feedback_voting_init');
 
