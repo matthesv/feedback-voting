@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.7.6
+Version:     1.7.7
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.7.6');
+define('FEEDBACK_VOTING_VERSION', '1.7.7');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -104,12 +104,20 @@ $myUpdateChecker->setBranch('main');
 
 // Helper for optional rating schema
 global $feedback_voting_schema;
-$feedback_voting_schema = array('score' => 0, 'count' => 0);
+$feedback_voting_schema = array(
+    'score' => 0,
+    'count' => 0,
+    'name'  => get_bloginfo('name'),
+);
 
 function feedback_voting_track_schema($score, $count) {
     global $feedback_voting_schema;
     if ($score > $feedback_voting_schema['score']) {
-        $feedback_voting_schema = array('score' => $score, 'count' => $count);
+        $feedback_voting_schema = array(
+            'score' => $score,
+            'count' => $count,
+            'name'  => get_bloginfo('name'),
+        );
     }
 }
 
@@ -124,6 +132,7 @@ function feedback_voting_output_schema() {
     $data = array(
         '@context' => 'https://schema.org',
         '@type' => 'Article',
+        'name' => $feedback_voting_schema['name'],
         'aggregateRating' => array(
             '@type' => 'AggregateRating',
             'ratingValue' => number_format($feedback_voting_schema['score'], 1),
