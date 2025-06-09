@@ -87,9 +87,10 @@ class My_Feedback_Plugin_Shortcode {
         global $wpdb, $post;
 
         $atts = shortcode_atts(array(
-            'question'    => __('War diese Antwort hilfreich?', 'feedback-voting'),
-            'post_id'     => isset($post->ID) ? $post->ID : 0,
-            'schema_type' => get_option('feedback_voting_schema_type', 'Article'),
+            'question'      => __('War diese Antwort hilfreich?', 'feedback-voting'),
+            'post_id'       => isset($post->ID) ? $post->ID : 0,
+            'schema_type'   => get_option('feedback_voting_schema_type', 'Article'),
+            'schema_rating' => get_option('feedback_voting_schema_rating', 0),
         ), $atts, 'feedback_score');
 
         $question = $atts['question'];
@@ -114,7 +115,7 @@ class My_Feedback_Plugin_Shortcode {
 
         $score = $total > 0 ? ($yes * 5 + $no) / $total : 0;
 
-        if ( get_option( 'feedback_voting_schema_rating', 0 ) && $total > 0 ) {
+        if ( intval( $atts['schema_rating'] ) && $total > 0 ) {
             $title = get_the_title( $post_id );
             feedback_voting_track_schema( $score, $total, $title, $atts['schema_type'] );
         }
