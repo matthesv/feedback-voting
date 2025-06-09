@@ -39,7 +39,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
         $this->assertNotEmpty( $m );
 
         $schema = json_decode( $m[1], true );
-        $this->assertSame( 'My Test Post', $schema['itemReviewed']['name'] );
+        $this->assertSame( 'My Test Post', $schema['name'] );
         $this->assertSame( '3.0', $schema['aggregateRating']['ratingValue'] );
         $this->assertSame( 2, $schema['aggregateRating']['ratingCount'] );
     }
