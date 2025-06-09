@@ -198,7 +198,7 @@ jQuery(function($) {
                 // Nach dem Ausblenden beider Boxen, einen Danke-Text einfügen
                 container.after(
                     '<p class="feedback-thankyou">' +
-                        'Vielen Dank für Ihr Feedback! Jede Antwort hilft uns, uns zu verbessern.' +
+                        feedbackVoting.thankYouMsg +
                     '</p>'
                 );
             });
