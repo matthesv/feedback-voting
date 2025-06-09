@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.13.0
+Version:     1.14.0
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.13.0');
+define('FEEDBACK_VOTING_VERSION', '1.14.0');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -110,7 +110,26 @@ global $feedback_voting_schema;
 $feedback_voting_schema = array('score' => 0, 'count' => 0, 'name' => '', 'type' => '');
 
 function feedback_voting_get_schema_type($post_id = 0) {
+    if (!$post_id) {
+        $post_id = is_singular() ? get_the_ID() : 0;
+    }
+    if ($post_id) {
+        $type = get_post_meta($post_id, '_feedback_voting_schema_type', true);
+        if ($type) {
+            return $type;
+        }
+    }
     return 'Product';
+}
+
+function feedback_voting_get_address($post_id = 0) {
+    if (!$post_id) {
+        $post_id = is_singular() ? get_the_ID() : 0;
+    }
+    if ($post_id) {
+        return get_post_meta($post_id, '_feedback_voting_address', true);
+    }
+    return '';
 }
 
 function feedback_voting_schema_disabled($post_id = 0) {
@@ -140,13 +159,20 @@ function feedback_voting_output_schema() {
     $post_id = is_singular() ? get_the_ID() : 0;
 
     $type = !empty($feedback_voting_schema['type']) ? $feedback_voting_schema['type'] : feedback_voting_get_schema_type($post_id);
+    $itemReviewed = array(
+        '@type' => $type,
+        'name'  => $feedback_voting_schema['name'],
+    );
+    if ($type === 'LocalBusiness') {
+        $address = feedback_voting_get_address($post_id);
+        if ($address) {
+            $itemReviewed['address'] = $address;
+        }
+    }
     $data = array(
         '@context'    => 'https://schema.org',
         '@type'       => 'AggregateRating',
-        'itemReviewed'=> array(
-            '@type' => $type,
-            'name'  => $feedback_voting_schema['name'],
-        ),
+        'itemReviewed'=> $itemReviewed,
         'ratingValue' => number_format($feedback_voting_schema['score'], 1),
         'ratingCount' => (int) $feedback_voting_schema['count'],
         'bestRating'  => '5',
