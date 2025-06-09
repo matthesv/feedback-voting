@@ -98,6 +98,11 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'absint',
             'default'           => 0,
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_schema_type', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => 'Article',
+        ));
         register_setting('feedback_voting_settings_group', 'feedback_voting_primary_color', array(
             'type'              => 'string',
             'sanitize_callback' => 'sanitize_hex_color',
@@ -236,6 +241,13 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_schema_rating',
             __('Score als Sterne-Markup ausgeben?', 'feedback-voting'),
             array($this, 'schema_rating_render'),
+            'feedback_voting_settings',
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
+            'feedback_voting_schema_type',
+            __('Schema-Typ für Bewertungen', 'feedback-voting'),
+            array($this, 'schema_type_render'),
             'feedback_voting_settings',
             'feedback_voting_general_section'
         );
@@ -431,6 +443,17 @@ class My_Feedback_Plugin_Admin {
             <input type="checkbox" id="feedback_voting_schema_rating" name="feedback_voting_schema_rating" value="1" <?php checked($value, 1); ?> />
             <?php _e('Score als Sterne-Bewertung für Google ausgeben', 'feedback-voting'); ?>
         </label>
+        <?php
+    }
+
+    /** Render select for schema type */
+    public function schema_type_render() {
+        $value = get_option('feedback_voting_schema_type', 'Article');
+        ?>
+        <select id="feedback_voting_schema_type" name="feedback_voting_schema_type">
+            <option value="Article" <?php selected($value, 'Article'); ?>>Article</option>
+            <option value="Recipe" <?php selected($value, 'Recipe'); ?>>Recipe</option>
+        </select>
         <?php
     }
 
