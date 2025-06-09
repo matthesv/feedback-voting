@@ -857,6 +857,9 @@ class My_Feedback_Plugin_Admin {
     /** Render the meta box */
     public function render_meta_box($post) {
         $disable_auto = get_post_meta($post->ID, '_feedback_voting_disable_auto', true);
+        $schema_type  = get_post_meta($post->ID, '_feedback_voting_schema_type', true);
+        $schema_type  = $schema_type ? $schema_type : 'Product';
+        $address      = get_post_meta($post->ID, '_feedback_voting_address', true);
         wp_nonce_field('feedback_voting_meta_box', 'feedback_voting_meta_box_nonce');
         ?>
         <p>
@@ -865,6 +868,29 @@ class My_Feedback_Plugin_Admin {
                 <?php _e('Automatisches Feedback auf dieser Seite deaktivieren', 'feedback-voting'); ?>
             </label>
         </p>
+        <p>
+            <label for="feedback_voting_schema_type"><?php _e('Schema Typ', 'feedback-voting'); ?></label>
+            <select id="feedback_voting_schema_type" name="feedback_voting_schema_type">
+                <?php foreach (array('Book','Course','Event','LocalBusiness','Movie','Product','Recipe','SoftwareApplication') as $t) { ?>
+                    <option value="<?php echo esc_attr($t); ?>" <?php selected($schema_type, $t); ?>><?php echo esc_html($t); ?></option>
+                <?php } ?>
+            </select>
+        </p>
+        <p id="feedback_voting_address_wrap">
+            <label for="feedback_voting_address"><?php _e('Adresse', 'feedback-voting'); ?></label>
+            <input type="text" id="feedback_voting_address" name="feedback_voting_address" value="<?php echo esc_attr($address); ?>" class="widefat" />
+        </p>
+        <script>
+        jQuery(function($){
+            $('#feedback_voting_schema_type').on('change', function(){
+                if ($(this).val() === 'LocalBusiness') {
+                    $('#feedback_voting_address_wrap').show();
+                } else {
+                    $('#feedback_voting_address_wrap').hide();
+                }
+            }).trigger('change');
+        });
+        </script>
         <?php
     }
 
@@ -882,6 +908,12 @@ class My_Feedback_Plugin_Admin {
 
         $disable_auto = isset($_POST['feedback_voting_disable_auto']) ? '1' : '0';
         update_post_meta($post_id, '_feedback_voting_disable_auto', $disable_auto);
+
+        $schema_type = isset($_POST['feedback_voting_schema_type']) ? sanitize_text_field($_POST['feedback_voting_schema_type']) : '';
+        update_post_meta($post_id, '_feedback_voting_schema_type', $schema_type);
+
+        $address = isset($_POST['feedback_voting_address']) ? sanitize_text_field($_POST['feedback_voting_address']) : '';
+        update_post_meta($post_id, '_feedback_voting_address', $address);
     }
 
     /**
