@@ -114,7 +114,8 @@ class My_Feedback_Plugin_Shortcode {
         $score = $total > 0 ? ($yes * 5 + $no) / $total : 0;
 
         if ( get_option( 'feedback_voting_schema_rating', 0 ) && $total > 0 ) {
-            feedback_voting_track_schema( $score, $total );
+            $title = get_the_title( $post_id );
+            feedback_voting_track_schema( $score, $total, $title );
         }
 
         $label     = get_option('feedback_voting_score_label', __('Euer Score', 'feedback-voting'));

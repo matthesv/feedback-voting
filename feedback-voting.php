@@ -104,12 +104,16 @@ $myUpdateChecker->setBranch('main');
 
 // Helper for optional rating schema
 global $feedback_voting_schema;
-$feedback_voting_schema = array('score' => 0, 'count' => 0);
+$feedback_voting_schema = array('score' => 0, 'count' => 0, 'name' => '');
 
-function feedback_voting_track_schema($score, $count) {
+function feedback_voting_track_schema($score, $count, $name = '') {
     global $feedback_voting_schema;
     if ($score > $feedback_voting_schema['score']) {
-        $feedback_voting_schema = array('score' => $score, 'count' => $count);
+        $feedback_voting_schema = array(
+            'score' => $score,
+            'count' => $count,
+            'name'  => $name,
+        );
     }
 }
 
@@ -124,6 +128,7 @@ function feedback_voting_output_schema() {
     $data = array(
         '@context' => 'https://schema.org',
         '@type' => 'Article',
+        'name' => $feedback_voting_schema['name'],
         'aggregateRating' => array(
             '@type' => 'AggregateRating',
             'ratingValue' => number_format($feedback_voting_schema['score'], 1),
