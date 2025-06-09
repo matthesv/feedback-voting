@@ -166,6 +166,11 @@ class My_Feedback_Plugin_Admin {
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => __('Feedback senden', 'feedback-voting'),
         ));
+        register_setting('feedback_voting_settings_group', 'feedback_voting_thankyou_text', array(
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => __('Vielen Dank für Ihr Feedback! Jede Antwort hilft uns, uns zu verbessern.', 'feedback-voting'),
+        ));
         register_setting('feedback_voting_settings_group', 'feedback_voting_before_text', array(
             'type'              => 'string',
             'sanitize_callback' => 'wp_kses_post',
@@ -404,6 +409,13 @@ class My_Feedback_Plugin_Admin {
             'feedback_voting_general_section'
         );
         add_settings_field(
+            'feedback_voting_thankyou_text',
+            __('Text nach dem Absenden', 'feedback-voting'),
+            array($this, 'thankyou_text_render'),
+            'feedback_voting_settings',
+            'feedback_voting_general_section'
+        );
+        add_settings_field(
             'feedback_voting_score_alignment',
             __('Ausrichtung der Score-Box', 'feedback-voting'),
             array($this, 'score_alignment_render'),
@@ -570,6 +582,15 @@ class My_Feedback_Plugin_Admin {
         $value = get_option('feedback_voting_submit_label', __('Feedback senden', 'feedback-voting'));
         printf(
             '<input type="text" id="feedback_voting_submit_label" name="feedback_voting_submit_label" value="%s" class="regular-text" />',
+            esc_attr($value)
+        );
+    }
+
+    /** Render input for thank you message */
+    public function thankyou_text_render() {
+        $value = get_option('feedback_voting_thankyou_text', __('Vielen Dank für Ihr Feedback! Jede Antwort hilft uns, uns zu verbessern.', 'feedback-voting'));
+        printf(
+            '<input type="text" id="feedback_voting_thankyou_text" name="feedback_voting_thankyou_text" value="%s" class="regular-text" />',
             esc_attr($value)
         );
     }
@@ -886,8 +907,9 @@ class My_Feedback_Plugin_Admin {
 
     /** Render the meta box */
     public function render_meta_box($post) {
-        $type    = get_post_meta($post->ID, '_feedback_voting_schema_type', true);
-        $disable = get_post_meta($post->ID, '_feedback_voting_disable_snippets', true);
+        $type        = get_post_meta($post->ID, '_feedback_voting_schema_type', true);
+        $disable     = get_post_meta($post->ID, '_feedback_voting_disable_snippets', true);
+        $disable_auto = get_post_meta($post->ID, '_feedback_voting_disable_auto', true);
         $allowed = array('Book','Course','Event','LocalBusiness','Movie','Product','Recipe','SoftwareApplication');
         wp_nonce_field('feedback_voting_meta_box', 'feedback_voting_meta_box_nonce');
         ?>
@@ -903,6 +925,12 @@ class My_Feedback_Plugin_Admin {
             <label>
                 <input type="checkbox" name="feedback_voting_disable_snippets" value="1" <?php checked($disable, '1'); ?> />
                 <?php _e('Bewertungs-Snippets für diesen Beitrag deaktivieren', 'feedback-voting'); ?>
+            </label>
+        </p>
+        <p>
+            <label>
+                <input type="checkbox" name="feedback_voting_disable_auto" value="1" <?php checked($disable_auto, '1'); ?> />
+                <?php _e('Automatisches Feedback auf dieser Seite deaktivieren', 'feedback-voting'); ?>
             </label>
         </p>
         <?php
@@ -931,6 +959,9 @@ class My_Feedback_Plugin_Admin {
 
         $disable = isset($_POST['feedback_voting_disable_snippets']) ? '1' : '0';
         update_post_meta($post_id, '_feedback_voting_disable_snippets', $disable);
+
+        $disable_auto = isset($_POST['feedback_voting_disable_auto']) ? '1' : '0';
+        update_post_meta($post_id, '_feedback_voting_disable_auto', $disable_auto);
     }
 
     /**

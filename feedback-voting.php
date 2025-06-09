@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.11.0
+Version:     1.12.0
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.11.0');
+define('FEEDBACK_VOTING_VERSION', '1.12.0');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -90,6 +90,7 @@ function feedback_voting_enqueue_scripts() {
         'enableFeedbackField' => get_option('feedback_voting_enable_feedback_field', '1'),
         'preventMultiple'    => get_option('feedback_voting_prevent_multiple', '0'),
         'nonce'               => wp_create_nonce('feedback_nonce_action'),
+        'thankYouMsg'         => get_option('feedback_voting_thankyou_text', __('Vielen Dank f\xc3\xbcr Ihr Feedback! Jede Antwort hilft uns, uns zu verbessern.', 'feedback-voting')),
     ));
 }
 add_action('wp_enqueue_scripts', 'feedback_voting_enqueue_scripts');
@@ -180,6 +181,11 @@ add_action('wp_footer', 'feedback_voting_output_schema');
  */
 function feedback_voting_auto_append($content) {
     if (is_admin()) {
+        return $content;
+    }
+
+    $post_id = is_singular() ? get_the_ID() : 0;
+    if ($post_id && get_post_meta($post_id, '_feedback_voting_disable_auto', true)) {
         return $content;
     }
 
