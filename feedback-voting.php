@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.7.9
+Version:     1.8.0
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.7.9');
+define('FEEDBACK_VOTING_VERSION', '1.8.0');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -104,15 +104,19 @@ $myUpdateChecker->setBranch('main');
 
 // Helper for optional rating schema
 global $feedback_voting_schema;
-$feedback_voting_schema = array('score' => 0, 'count' => 0, 'name' => '');
+$feedback_voting_schema = array('score' => 0, 'count' => 0, 'name' => '', 'type' => '');
 
-function feedback_voting_track_schema($score, $count, $name = '') {
+function feedback_voting_track_schema($score, $count, $name = '', $type = null) {
     global $feedback_voting_schema;
     if ($score > $feedback_voting_schema['score']) {
+        if ($type === null) {
+            $type = get_option('feedback_voting_schema_type', 'Article');
+        }
         $feedback_voting_schema = array(
             'score' => $score,
             'count' => $count,
             'name'  => $name,
+            'type'  => $type,
         );
     }
 }
@@ -125,9 +129,10 @@ function feedback_voting_output_schema() {
     if (empty($feedback_voting_schema) || $feedback_voting_schema['score'] <= 0) {
         return;
     }
+    $type = !empty($feedback_voting_schema['type']) ? $feedback_voting_schema['type'] : get_option('feedback_voting_schema_type', 'Article');
     $data = array(
         '@context'        => 'https://schema.org',
-        '@type'           => 'Article',
+        '@type'           => $type,
         'name'            => $feedback_voting_schema['name'],
         'aggregateRating' => array(
             '@type'       => 'AggregateRating',
@@ -166,9 +171,10 @@ function feedback_voting_auto_append($content) {
     );
 
     $shortcode  = '[feedback_voting question="' . esc_attr($question) . '"]';
+    $schema_type = get_option('feedback_voting_schema_type', 'Article');
 
     if (get_option('feedback_voting_auto_score', 0)) {
-        $shortcode .= ' [feedback_score question="' . esc_attr($question) . '" post_id="' . get_the_ID() . '"]';
+        $shortcode .= ' [feedback_score question="' . esc_attr($question) . '" post_id="' . get_the_ID() . '" schema_type="' . esc_attr($schema_type) . '"]';
     }
 
     return $content . do_shortcode($shortcode);
