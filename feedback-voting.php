@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.9.0
+Version:     1.10.0
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.9.0');
+define('FEEDBACK_VOTING_VERSION', '1.10.0');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -106,11 +106,34 @@ $myUpdateChecker->setBranch('main');
 global $feedback_voting_schema;
 $feedback_voting_schema = array('score' => 0, 'count' => 0, 'name' => '', 'type' => '');
 
+function feedback_voting_get_schema_type($post_id = 0) {
+    if (!$post_id && is_singular()) {
+        $post_id = get_the_ID();
+    }
+    if ($post_id) {
+        $type = get_post_meta($post_id, '_feedback_voting_schema_type', true);
+        if (!empty($type)) {
+            return $type;
+        }
+    }
+    return get_option('feedback_voting_schema_type', 'Product');
+}
+
+function feedback_voting_schema_disabled($post_id = 0) {
+    if (!$post_id && is_singular()) {
+        $post_id = get_the_ID();
+    }
+    if ($post_id) {
+        return (bool) get_post_meta($post_id, '_feedback_voting_disable_snippets', true);
+    }
+    return false;
+}
+
 function feedback_voting_track_schema($score, $count, $name = '', $type = null) {
     global $feedback_voting_schema;
     if ($score > $feedback_voting_schema['score']) {
         if ($type === null) {
-            $type = get_option('feedback_voting_schema_type', 'Article');
+            $type = feedback_voting_get_schema_type();
         }
         $feedback_voting_schema = array(
             'score' => $score,
@@ -129,7 +152,12 @@ function feedback_voting_output_schema() {
     if (empty($feedback_voting_schema) || $feedback_voting_schema['score'] <= 0) {
         return;
     }
-    $type = !empty($feedback_voting_schema['type']) ? $feedback_voting_schema['type'] : get_option('feedback_voting_schema_type', 'Article');
+    $post_id = is_singular() ? get_the_ID() : 0;
+    if ($post_id && feedback_voting_schema_disabled($post_id)) {
+        return;
+    }
+
+    $type = !empty($feedback_voting_schema['type']) ? $feedback_voting_schema['type'] : feedback_voting_get_schema_type($post_id);
     $data = array(
         '@context'    => 'https://schema.org',
         '@type'       => 'AggregateRating',
@@ -171,11 +199,12 @@ function feedback_voting_auto_append($content) {
     );
 
     $shortcode  = '[feedback_voting question="' . esc_attr($question) . '"]';
-    $schema_type   = get_option('feedback_voting_schema_type', 'Article');
-    $schema_rating = get_option('feedback_voting_schema_rating', 0);
+    $post_id       = get_the_ID();
+    $schema_type   = feedback_voting_get_schema_type($post_id);
+    $schema_rating = feedback_voting_schema_disabled($post_id) ? 0 : get_option('feedback_voting_schema_rating', 0);
 
     if (get_option('feedback_voting_auto_score', 0)) {
-        $shortcode .= ' [feedback_score question="' . esc_attr($question) . '" post_id="' . get_the_ID() . '" schema_type="' . esc_attr($schema_type) . '" schema_rating="' . esc_attr($schema_rating) . '"]';
+        $shortcode .= ' [feedback_score question="' . esc_attr($question) . '" post_id="' . $post_id . '" schema_type="' . esc_attr($schema_type) . '" schema_rating="' . esc_attr($schema_rating) . '"]';
     }
 
     return $content . do_shortcode($shortcode);
