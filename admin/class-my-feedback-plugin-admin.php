@@ -11,6 +11,10 @@ class My_Feedback_Plugin_Admin {
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
 
+        // Meta boxes
+        add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
+        add_action('save_post', array($this, 'save_meta_box'));
+
         // CSV-Export und Löschen
         add_action('admin_post_feedback_voting_export_csv', array($this, 'handle_export_csv'));
         add_action('admin_post_feedback_voting_delete_all', array($this, 'handle_delete_all'));
@@ -101,7 +105,7 @@ class My_Feedback_Plugin_Admin {
         register_setting('feedback_voting_settings_group', 'feedback_voting_schema_type', array(
             'type'              => 'string',
             'sanitize_callback' => 'sanitize_text_field',
-            'default'           => 'Article',
+            'default'           => 'Product',
         ));
         register_setting('feedback_voting_settings_group', 'feedback_voting_primary_color', array(
             'type'              => 'string',
@@ -448,11 +452,17 @@ class My_Feedback_Plugin_Admin {
 
     /** Render select for schema type */
     public function schema_type_render() {
-        $value = get_option('feedback_voting_schema_type', 'Article');
+        $value = get_option('feedback_voting_schema_type', 'Product');
         ?>
         <select id="feedback_voting_schema_type" name="feedback_voting_schema_type">
-            <option value="Article" <?php selected($value, 'Article'); ?>>Article</option>
+            <option value="Book" <?php selected($value, 'Book'); ?>>Book</option>
+            <option value="Course" <?php selected($value, 'Course'); ?>>Course</option>
+            <option value="Event" <?php selected($value, 'Event'); ?>>Event</option>
+            <option value="LocalBusiness" <?php selected($value, 'LocalBusiness'); ?>>LocalBusiness</option>
+            <option value="Movie" <?php selected($value, 'Movie'); ?>>Movie</option>
+            <option value="Product" <?php selected($value, 'Product'); ?>>Product</option>
             <option value="Recipe" <?php selected($value, 'Recipe'); ?>>Recipe</option>
+            <option value="SoftwareApplication" <?php selected($value, 'SoftwareApplication'); ?>>SoftwareApplication</option>
         </select>
         <?php
     }
@@ -850,6 +860,68 @@ class My_Feedback_Plugin_Admin {
             </form>
         </div>
         <?php
+    }
+
+    /** Add meta box for per-post settings */
+    public function add_meta_boxes() {
+        foreach (array('post', 'page') as $screen) {
+            add_meta_box(
+                'feedback_voting_meta',
+                __('Feedback Voting', 'feedback-voting'),
+                array($this, 'render_meta_box'),
+                $screen,
+                'side'
+            );
+        }
+    }
+
+    /** Render the meta box */
+    public function render_meta_box($post) {
+        $type    = get_post_meta($post->ID, '_feedback_voting_schema_type', true);
+        $disable = get_post_meta($post->ID, '_feedback_voting_disable_snippets', true);
+        $allowed = array('Book','Course','Event','LocalBusiness','Movie','Product','Recipe','SoftwareApplication');
+        wp_nonce_field('feedback_voting_meta_box', 'feedback_voting_meta_box_nonce');
+        ?>
+        <p>
+            <label for="feedback_voting_schema_type"><strong><?php _e('Schema-Typ', 'feedback-voting'); ?></strong></label><br />
+            <select id="feedback_voting_schema_type" name="feedback_voting_schema_type">
+                <?php foreach ($allowed as $opt) : ?>
+                    <option value="<?php echo esc_attr($opt); ?>" <?php selected($type ?: get_option('feedback_voting_schema_type', 'Product'), $opt); ?>><?php echo esc_html($opt); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+        <p>
+            <label>
+                <input type="checkbox" name="feedback_voting_disable_snippets" value="1" <?php checked($disable, '1'); ?> />
+                <?php _e('Bewertungs-Snippets für diesen Beitrag deaktivieren', 'feedback-voting'); ?>
+            </label>
+        </p>
+        <?php
+    }
+
+    /** Save meta box values */
+    public function save_meta_box($post_id) {
+        if (!isset($_POST['feedback_voting_meta_box_nonce']) || !wp_verify_nonce($_POST['feedback_voting_meta_box_nonce'], 'feedback_voting_meta_box')) {
+            return;
+        }
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+
+        $allowed = array('Book','Course','Event','LocalBusiness','Movie','Product','Recipe','SoftwareApplication');
+        if (isset($_POST['feedback_voting_schema_type'])) {
+            $type = sanitize_text_field($_POST['feedback_voting_schema_type']);
+            if (!in_array($type, $allowed, true)) {
+                $type = get_option('feedback_voting_schema_type', 'Product');
+            }
+            update_post_meta($post_id, '_feedback_voting_schema_type', $type);
+        }
+
+        $disable = isset($_POST['feedback_voting_disable_snippets']) ? '1' : '0';
+        update_post_meta($post_id, '_feedback_voting_disable_snippets', $disable);
     }
 
     /**
