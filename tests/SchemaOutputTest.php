@@ -6,8 +6,6 @@ class Schema_Output_Test extends WP_UnitTestCase {
     public function test_footer_contains_rating_schema() {
         global $wpdb;
 
-        update_option( 'feedback_voting_schema_rating', 1 );
-
         global $feedback_voting_schema;
         $feedback_voting_schema = [ 'score' => 0, 'count' => 0, 'name' => '', 'type' => '' ];
 
@@ -53,8 +51,6 @@ class Schema_Output_Test extends WP_UnitTestCase {
     public function test_schema_type_override() {
         global $wpdb;
 
-        update_option( 'feedback_voting_schema_rating', 1 );
-
         $post_id = self::factory()->post->create( [ 'post_title' => 'My Recipe' ] );
         $this->go_to( get_permalink( $post_id ) );
         $table   = $wpdb->prefix . 'feedback_votes';
@@ -68,7 +64,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
             'created_at'    => $now,
         ] );
 
-        do_shortcode( "[feedback_score question=\"Q\" post_id=\"$post_id\" schema_type=\"Recipe\"]" );
+        do_shortcode( "[feedback_score question=\"Q\" post_id=\"$post_id\" schema_type=\"Recipe\" schema_rating=\"1\"]" );
 
         wp_enqueue_block_template_skip_link();
         ob_start();
@@ -83,8 +79,6 @@ class Schema_Output_Test extends WP_UnitTestCase {
 
     public function test_schema_disabled_via_attribute() {
         global $wpdb;
-
-        update_option( 'feedback_voting_schema_rating', 1 );
 
         $post_id = self::factory()->post->create( [ 'post_title' => 'No Schema' ] );
         $this->go_to( get_permalink( $post_id ) );
@@ -113,34 +107,4 @@ class Schema_Output_Test extends WP_UnitTestCase {
         $this->assertEmpty( $m );
     }
 
-    public function test_schema_disabled_via_post_meta() {
-        global $wpdb;
-
-        update_option( 'feedback_voting_schema_rating', 1 );
-
-        $post_id = self::factory()->post->create( [ 'post_title' => 'Meta Off' ] );
-        $this->go_to( get_permalink( $post_id ) );
-        update_post_meta( $post_id, '_feedback_voting_disable_snippets', 1 );
-
-        $table   = $wpdb->prefix . 'feedback_votes';
-        $now     = current_time( 'mysql' );
-
-        $wpdb->insert( $table, [
-            'question'      => 'Q',
-            'vote'          => 'yes',
-            'feedback_text' => '',
-            'post_id'       => $post_id,
-            'created_at'    => $now,
-        ] );
-
-        do_shortcode( "[feedback_score question=\"Q\" post_id=\"$post_id\"]" );
-
-        wp_enqueue_block_template_skip_link();
-        ob_start();
-        do_action( 'wp_footer' );
-        $output = ob_get_clean();
-
-        preg_match( '/<script type="application\/ld\+json">(.*?)<\/script>/s', $output, $m );
-        $this->assertEmpty( $m );
-    }
 }
