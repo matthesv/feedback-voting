@@ -85,6 +85,15 @@ class My_Feedback_Plugin_Admin {
             'feedback-voting-settings',
             array($this, 'render_settings_page')
         );
+
+        add_submenu_page(
+            'feedback-voting',
+            __('Info', 'feedback-voting'),
+            __('Info', 'feedback-voting'),
+            'manage_options',
+            'feedback-voting-info',
+            array($this, 'render_info_page')
+        );
     }
 
     /**
@@ -1005,5 +1014,19 @@ class My_Feedback_Plugin_Admin {
             admin_url('admin.php?page=feedback-voting')
         ));
         exit;
+    }
+
+    /**
+     * Render simple info page with description and demo shortcode.
+     */
+    public function render_info_page() {
+        ?>
+        <div class="wrap">
+            <h1><?php _e('Feedback Voting Info', 'feedback-voting'); ?></h1>
+            <p><?php _e('Dieses Plugin fügt ein Feedback-Formular und optional eine Score-Anzeige hinzu. Alle Einstellungen können im Block oder per Shortcode angepasst werden.', 'feedback-voting'); ?></p>
+            <p><?php _e('Verwende den folgenden Shortcode als Beispiel:', 'feedback-voting'); ?></p>
+            <input type="text" class="large-text" readonly value="[feedback_voting question='War diese Antwort hilfreich?'][feedback_score question='War diese Antwort hilfreich?' post_id='123']" onclick="this.select();" />
+        </div>
+        <?php
     }
 }

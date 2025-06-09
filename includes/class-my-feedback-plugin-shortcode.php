@@ -87,10 +87,14 @@ class My_Feedback_Plugin_Shortcode {
         global $wpdb, $post;
 
         $atts = shortcode_atts(array(
-            'question'      => __('War diese Antwort hilfreich?', 'feedback-voting'),
-            'post_id'       => isset($post->ID) ? $post->ID : 0,
-            'schema_type'   => '',
-            'schema_rating' => '',
+            'question'        => __('War diese Antwort hilfreich?', 'feedback-voting'),
+            'post_id'         => isset($post->ID) ? $post->ID : 0,
+            'schema_type'     => '',
+            'schema_rating'   => '',
+            'label'           => '',
+            'alignment'       => '',
+            'wrap'            => '',
+            'label_position'  => '',
         ), $atts, 'feedback_score');
 
         $atts['schema_type'] = $atts['schema_type'] !== '' ? $atts['schema_type'] : feedback_voting_get_schema_type($atts['post_id']);
@@ -123,10 +127,10 @@ class My_Feedback_Plugin_Shortcode {
             feedback_voting_track_schema( $score, $total, $title, $atts['schema_type'] );
         }
 
-        $label     = get_option('feedback_voting_score_label', __('Euer Score', 'feedback-voting'));
-        $alignment = get_option('feedback_voting_score_alignment', 'left');
-        $wrap      = get_option('feedback_voting_score_wrap', 'none');
-        $label_pos = get_option('feedback_voting_score_label_position', 'top');
+        $label     = $atts['label'] !== '' ? $atts['label'] : get_option('feedback_voting_score_label', __('Euer Score', 'feedback-voting'));
+        $alignment = $atts['alignment'] !== '' ? $atts['alignment'] : get_option('feedback_voting_score_alignment', 'left');
+        $wrap      = $atts['wrap'] !== '' ? $atts['wrap'] : get_option('feedback_voting_score_wrap', 'none');
+        $label_pos = $atts['label_position'] !== '' ? $atts['label_position'] : get_option('feedback_voting_score_label_position', 'top');
 
         $classes = array('feedback-score-box', 'fv-align-' . $alignment);
         if ($wrap !== 'none') {
