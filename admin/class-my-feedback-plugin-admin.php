@@ -866,26 +866,33 @@ class My_Feedback_Plugin_Admin {
         }
         wp_nonce_field('feedback_voting_meta_box', 'feedback_voting_meta_box_nonce');
         ?>
-        <p>
-            <label>
-                <input type="checkbox" name="feedback_voting_disable_auto" value="1" <?php checked($disable_auto, '1'); ?> />
-                <?php _e('Automatisches Feedback auf dieser Seite deaktivieren', 'feedback-voting'); ?>
-            </label>
-        </p>
-        <p>
-            <label for="feedback_voting_schema_type"><?php _e('Schema Typ', 'feedback-voting'); ?></label>
-            <select id="feedback_voting_schema_type" name="feedback_voting_schema_type">
-                <?php foreach (array('Book','Course','Event','LocalBusiness','Movie','Product','Recipe','SoftwareApplication') as $t) { ?>
-                    <option value="<?php echo esc_attr($t); ?>" <?php selected($schema_type, $t); ?>><?php echo esc_html($t); ?></option>
-                <?php } ?>
-            </select>
-        </p>
-        <p id="feedback_voting_address_wrap" style="display:none">
-            <label for="feedback_voting_address"><?php _e('Adresse', 'feedback-voting'); ?></label>
-            <input type="text" id="feedback_voting_address" name="feedback_voting_address" value="<?php echo esc_attr($address); ?>" class="widefat" />
-        </p>
-        <div id="feedback_voting_lb_fields" style="display:none">
-            <p>
+        <div class="fv-meta-tabs">
+            <h2 class="nav-tab-wrapper">
+                <a href="#" class="nav-tab nav-tab-active" data-fv-tab="general"><?php _e('Allgemein', 'feedback-voting'); ?></a>
+                <a href="#" class="nav-tab" data-fv-tab="localbusiness" id="fv-tab-header-localbusiness" style="display:none"><?php _e('LocalBusiness', 'feedback-voting'); ?></a>
+            </h2>
+            <div id="fv-tab-content-general" class="fv-tab-content">
+                <p>
+                    <label>
+                        <input type="checkbox" name="feedback_voting_disable_auto" value="1" <?php checked($disable_auto, '1'); ?> />
+                        <?php _e('Automatisches Feedback auf dieser Seite deaktivieren', 'feedback-voting'); ?>
+                    </label>
+                </p>
+                <p>
+                    <label for="feedback_voting_schema_type"><?php _e('Schema Typ', 'feedback-voting'); ?></label>
+                    <select id="feedback_voting_schema_type" name="feedback_voting_schema_type">
+                        <?php foreach (array('Book','Course','Event','LocalBusiness','Movie','Product','Recipe','SoftwareApplication') as $t) { ?>
+                            <option value="<?php echo esc_attr($t); ?>" <?php selected($schema_type, $t); ?>><?php echo esc_html($t); ?></option>
+                        <?php } ?>
+                    </select>
+                </p>
+            </div>
+            <div id="fv-tab-content-localbusiness" class="fv-tab-content" style="display:none">
+                <p id="feedback_voting_address_wrap">
+                    <label for="feedback_voting_address"><?php _e('Adresse', 'feedback-voting'); ?></label>
+                    <input type="text" id="feedback_voting_address" name="feedback_voting_address" value="<?php echo esc_attr($address); ?>" class="widefat" />
+                </p>
+                <div id="feedback_voting_lb_fields">
                 <label for="fv_lb_name"><?php _e('Name', 'feedback-voting'); ?></label>
                 <input type="text" id="fv_lb_name" name="feedback_voting_localbusiness[name]" value="<?php echo esc_attr($lb_data['name'] ?? ''); ?>" class="widefat" />
             </p>
@@ -953,32 +960,35 @@ class My_Feedback_Plugin_Admin {
                 <label for="fv_lb_price">priceRange</label>
                 <input type="text" id="fv_lb_price" name="feedback_voting_localbusiness[priceRange]" value="<?php echo esc_attr($lb_data['priceRange'] ?? ''); ?>" class="widefat" />
             </p>
+                </div>
+            </div>
         </div>
         <script>
         jQuery(function($){
-            function toggleLbFields() {
+            function switchTab(tab){
+                $('.fv-meta-tabs .nav-tab').removeClass('nav-tab-active');
+                $('.fv-meta-tabs .nav-tab[data-fv-tab="'+tab+'"]').addClass('nav-tab-active');
+                $('.fv-tab-content').hide();
+                $('#fv-tab-content-' + tab).show();
+            }
+            function toggleLbFields(){
                 var $sel = $('#feedback_voting_schema_type');
-                if (!$sel.length) return;
-                if ($sel.val().toLowerCase() === 'localbusiness') {
-                    $('#feedback_voting_address_wrap').show();
-                    $('#feedback_voting_lb_fields').show();
-                } else {
-                    $('#feedback_voting_address_wrap').hide();
-                    $('#feedback_voting_lb_fields').hide();
+                if(!$sel.length) return;
+                var isLb = $sel.val().toLowerCase() === 'localbusiness';
+                $('#fv-tab-header-localbusiness').toggle(isLb);
+                if(!isLb && $('.fv-meta-tabs .nav-tab-active').data('fv-tab') === 'localbusiness'){
+                    switchTab('general');
                 }
             }
-
+            $(document).on('click', '.fv-meta-tabs .nav-tab', function(e){
+                e.preventDefault();
+                switchTab($(this).data('fv-tab'));
+            });
             $(document).on('change', '#feedback_voting_schema_type', toggleLbFields);
-
-            var check = setInterval(function(){
-                if ($('#feedback_voting_schema_type').length) {
-                    toggleLbFields();
-                    clearInterval(check);
-                }
-            }, 200);
+            toggleLbFields();
+            switchTab($('.fv-meta-tabs .nav-tab-active').data('fv-tab'));
         });
         </script>
-        <?php
     }
 
     /** Save meta box values */
