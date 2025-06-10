@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.14.0
+Version:     1.15.0
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.14.0');
+define('FEEDBACK_VOTING_VERSION', '1.15.0');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -127,7 +127,28 @@ function feedback_voting_get_address($post_id = 0) {
         $post_id = is_singular() ? get_the_ID() : 0;
     }
     if ($post_id) {
-        return get_post_meta($post_id, '_feedback_voting_address', true);
+        $legacy = get_post_meta($post_id, '_feedback_voting_address', true);
+        if ($legacy) {
+            if (is_array($legacy)) {
+                return $legacy;
+            }
+            return array(
+                '@type' => 'PostalAddress',
+                'streetAddress' => $legacy,
+            );
+        }
+        $fields = array('streetAddress','addressLocality','addressRegion','postalCode','addressCountry');
+        $address = array();
+        foreach ($fields as $f) {
+            $val = get_post_meta($post_id, '_feedback_voting_' . $f, true);
+            if ($val) {
+                $address[$f] = $val;
+            }
+        }
+        if ($address) {
+            $address['@type'] = 'PostalAddress';
+            return $address;
+        }
     }
     return '';
 }
@@ -159,24 +180,63 @@ function feedback_voting_output_schema() {
     $post_id = is_singular() ? get_the_ID() : 0;
 
     $type = !empty($feedback_voting_schema['type']) ? $feedback_voting_schema['type'] : feedback_voting_get_schema_type($post_id);
-    $itemReviewed = array(
-        '@type' => $type,
-        'name'  => $feedback_voting_schema['name'],
-    );
     if ($type === 'LocalBusiness') {
+        $data = array(
+            '@context' => 'https://schema.org',
+            '@type'    => 'LocalBusiness',
+            'name'     => $feedback_voting_schema['name'],
+        );
+        $id = get_post_meta($post_id, '_feedback_voting_business_id', true);
+        if ($id) {
+            $data['@id'] = $id;
+        }
         $address = feedback_voting_get_address($post_id);
         if ($address) {
-            $itemReviewed['address'] = $address;
+            $data['address'] = $address;
+        }
+        $simple_fields = array(
+            'telephone','url','logo','description','openingHours','sameAs','image','priceRange','menu','servesCuisine','hasMap','department','areaServed','paymentAccepted','currenciesAccepted','parentOrganization','subOrganization','contactPoint','founder','foundingDate','foundingLocation','employee','numberOfEmployees','hasOfferCatalog'
+        );
+        foreach ($simple_fields as $f) {
+            $val = get_post_meta($post_id, '_feedback_voting_' . $f, true);
+            if ($val) {
+                $data[$f] = $val;
+            }
+        }
+        $lat  = get_post_meta($post_id, '_feedback_voting_latitude', true);
+        $long = get_post_meta($post_id, '_feedback_voting_longitude', true);
+        if ($lat && $long) {
+            $data['geo'] = array(
+                '@type' => 'GeoCoordinates',
+                'latitude' => $lat,
+                'longitude'=> $long,
+            );
+        }
+        $data['aggregateRating'] = array(
+            '@type' => 'AggregateRating',
+            'ratingValue' => number_format($feedback_voting_schema['score'], 1),
+            'reviewCount' => (int) $feedback_voting_schema['count'],
+        );
+    } else {
+        $itemReviewed = array(
+            '@type' => $type,
+            'name'  => $feedback_voting_schema['name'],
+        );
+        $data = array(
+            '@context'    => 'https://schema.org',
+            '@type'       => 'AggregateRating',
+            'itemReviewed'=> $itemReviewed,
+            'ratingValue' => number_format($feedback_voting_schema['score'], 1),
+            'ratingCount' => (int) $feedback_voting_schema['count'],
+            'bestRating'  => '5',
+        );
+        if ($type === 'LocalBusiness') { // fallback for legacy data
+            $address = feedback_voting_get_address($post_id);
+            if ($address) {
+                $data['itemReviewed']['address'] = $address;
+            }
         }
     }
-    $data = array(
-        '@context'    => 'https://schema.org',
-        '@type'       => 'AggregateRating',
-        'itemReviewed'=> $itemReviewed,
-        'ratingValue' => number_format($feedback_voting_schema['score'], 1),
-        'ratingCount' => (int) $feedback_voting_schema['count'],
-        'bestRating'  => '5',
-    );
     echo '<script type="application/ld+json">' . wp_json_encode($data) . '</script>' . "\n";
 }
 add_action('wp_footer', 'feedback_voting_output_schema');

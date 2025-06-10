@@ -84,7 +84,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
 
         $post_id = self::factory()->post->create( [ 'post_title' => 'My Business' ] );
         update_post_meta( $post_id, '_feedback_voting_schema_type', 'LocalBusiness' );
-        update_post_meta( $post_id, '_feedback_voting_address', 'Main Street 1' );
+        update_post_meta( $post_id, '_feedback_voting_streetAddress', 'Main Street 1' );
         $this->go_to( get_permalink( $post_id ) );
         $table   = $wpdb->prefix . 'feedback_votes';
         $now     = current_time( 'mysql' );
@@ -107,8 +107,9 @@ class Schema_Output_Test extends WP_UnitTestCase {
         preg_match( '/<script type="application\/ld\+json">(.*?)<\/script>/s', $output, $m );
         $schema = json_decode( $m[1], true );
 
-        $this->assertSame( 'LocalBusiness', $schema['itemReviewed']['@type'] );
-        $this->assertSame( 'Main Street 1', $schema['itemReviewed']['address'] );
+        $this->assertSame( 'LocalBusiness', $schema['@type'] );
+        $this->assertSame( 'Main Street 1', $schema['address']['streetAddress'] );
+        $this->assertSame( '5.0', $schema['aggregateRating']['ratingValue'] );
     }
 
     public function test_schema_disabled_via_attribute() {

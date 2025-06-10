@@ -859,7 +859,20 @@ class My_Feedback_Plugin_Admin {
         $disable_auto = get_post_meta($post->ID, '_feedback_voting_disable_auto', true);
         $schema_type  = get_post_meta($post->ID, '_feedback_voting_schema_type', true);
         $schema_type  = $schema_type ? $schema_type : 'Product';
-        $address      = get_post_meta($post->ID, '_feedback_voting_address', true);
+        $fields = array(
+            'business_name', 'business_id', 'streetAddress', 'addressLocality',
+            'addressRegion', 'postalCode', 'addressCountry', 'telephone', 'url',
+            'logo', 'description', 'openingHours', 'latitude', 'longitude',
+            'sameAs', 'image', 'priceRange', 'menu', 'servesCuisine', 'hasMap',
+            'department', 'areaServed', 'paymentAccepted', 'currenciesAccepted',
+            'parentOrganization', 'subOrganization', 'contactPoint', 'founder',
+            'foundingDate', 'foundingLocation', 'employee', 'numberOfEmployees',
+            'hasOfferCatalog'
+        );
+        $meta_values = array();
+        foreach ($fields as $f) {
+            $meta_values[$f] = get_post_meta($post->ID, '_feedback_voting_' . $f, true);
+        }
         wp_nonce_field('feedback_voting_meta_box', 'feedback_voting_meta_box_nonce');
         ?>
         <p>
@@ -876,17 +889,147 @@ class My_Feedback_Plugin_Admin {
                 <?php } ?>
             </select>
         </p>
-        <p id="feedback_voting_address_wrap">
-            <label for="feedback_voting_address"><?php _e('Adresse', 'feedback-voting'); ?></label>
-            <input type="text" id="feedback_voting_address" name="feedback_voting_address" value="<?php echo esc_attr($address); ?>" class="widefat" />
-        </p>
+        <div id="feedback_voting_localbusiness_fields" style="display:none">
+            <p>
+                <label for="feedback_voting_business_name"><?php _e('Name', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_business_name" name="feedback_voting_business_name" value="<?php echo esc_attr($meta_values['business_name']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_business_id"><?php _e('@id', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_business_id" name="feedback_voting_business_id" value="<?php echo esc_attr($meta_values['business_id']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_streetAddress"><?php _e('Stra\xC3\x9Fe', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_streetAddress" name="feedback_voting_streetAddress" value="<?php echo esc_attr($meta_values['streetAddress']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_addressLocality"><?php _e('Ort', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_addressLocality" name="feedback_voting_addressLocality" value="<?php echo esc_attr($meta_values['addressLocality']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_addressRegion"><?php _e('Region', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_addressRegion" name="feedback_voting_addressRegion" value="<?php echo esc_attr($meta_values['addressRegion']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_postalCode"><?php _e('PLZ', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_postalCode" name="feedback_voting_postalCode" value="<?php echo esc_attr($meta_values['postalCode']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_addressCountry"><?php _e('Land', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_addressCountry" name="feedback_voting_addressCountry" value="<?php echo esc_attr($meta_values['addressCountry']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_telephone"><?php _e('Telefon', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_telephone" name="feedback_voting_telephone" value="<?php echo esc_attr($meta_values['telephone']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_url"><?php _e('URL', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_url" name="feedback_voting_url" value="<?php echo esc_attr($meta_values['url']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_logo"><?php _e('Logo', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_logo" name="feedback_voting_logo" value="<?php echo esc_attr($meta_values['logo']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_description"><?php _e('Beschreibung', 'feedback-voting'); ?></label>
+                <textarea id="feedback_voting_description" name="feedback_voting_description" class="widefat" rows="2"><?php echo esc_textarea($meta_values['description']); ?></textarea>
+            </p>
+            <p>
+                <label for="feedback_voting_openingHours"><?php _e('\xC3\x96ffnungszeiten', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_openingHours" name="feedback_voting_openingHours" value="<?php echo esc_attr($meta_values['openingHours']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_latitude"><?php _e('Breitengrad', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_latitude" name="feedback_voting_latitude" value="<?php echo esc_attr($meta_values['latitude']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_longitude"><?php _e('L\xC3\xA4ngengrad', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_longitude" name="feedback_voting_longitude" value="<?php echo esc_attr($meta_values['longitude']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_sameAs"><?php _e('SameAs', 'feedback-voting'); ?></label>
+                <textarea id="feedback_voting_sameAs" name="feedback_voting_sameAs" class="widefat" rows="2"><?php echo esc_textarea($meta_values['sameAs']); ?></textarea>
+            </p>
+            <p>
+                <label for="feedback_voting_image"><?php _e('Bild-URL', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_image" name="feedback_voting_image" value="<?php echo esc_attr($meta_values['image']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_priceRange"><?php _e('Preisspanne', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_priceRange" name="feedback_voting_priceRange" value="<?php echo esc_attr($meta_values['priceRange']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_menu"><?php _e('Men\xC3\xBC-URL', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_menu" name="feedback_voting_menu" value="<?php echo esc_attr($meta_values['menu']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_servesCuisine"><?php _e('K\xC3\xBCchenrichtung', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_servesCuisine" name="feedback_voting_servesCuisine" value="<?php echo esc_attr($meta_values['servesCuisine']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_hasMap"><?php _e('Kartenlink', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_hasMap" name="feedback_voting_hasMap" value="<?php echo esc_attr($meta_values['hasMap']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_department"><?php _e('Abteilung', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_department" name="feedback_voting_department" value="<?php echo esc_attr($meta_values['department']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_areaServed"><?php _e('Gebiet', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_areaServed" name="feedback_voting_areaServed" value="<?php echo esc_attr($meta_values['areaServed']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_paymentAccepted"><?php _e('Zahlungsmethoden', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_paymentAccepted" name="feedback_voting_paymentAccepted" value="<?php echo esc_attr($meta_values['paymentAccepted']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_currenciesAccepted"><?php _e('W\xC3\xA4hrungen', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_currenciesAccepted" name="feedback_voting_currenciesAccepted" value="<?php echo esc_attr($meta_values['currenciesAccepted']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_parentOrganization"><?php _e('Hauptorganisation', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_parentOrganization" name="feedback_voting_parentOrganization" value="<?php echo esc_attr($meta_values['parentOrganization']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_subOrganization"><?php _e('Unterorganisation', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_subOrganization" name="feedback_voting_subOrganization" value="<?php echo esc_attr($meta_values['subOrganization']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_contactPoint"><?php _e('Kontaktpunkt', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_contactPoint" name="feedback_voting_contactPoint" value="<?php echo esc_attr($meta_values['contactPoint']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_founder"><?php _e('Gr\xC3\xBCnder', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_founder" name="feedback_voting_founder" value="<?php echo esc_attr($meta_values['founder']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_foundingDate"><?php _e('Gr\xC3\xBCndungsdatum', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_foundingDate" name="feedback_voting_foundingDate" value="<?php echo esc_attr($meta_values['foundingDate']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_foundingLocation"><?php _e('Gr\xC3\xBCndungsort', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_foundingLocation" name="feedback_voting_foundingLocation" value="<?php echo esc_attr($meta_values['foundingLocation']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_employee"><?php _e('Mitarbeiter', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_employee" name="feedback_voting_employee" value="<?php echo esc_attr($meta_values['employee']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_numberOfEmployees"><?php _e('Anzahl Mitarbeiter', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_numberOfEmployees" name="feedback_voting_numberOfEmployees" value="<?php echo esc_attr($meta_values['numberOfEmployees']); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="feedback_voting_hasOfferCatalog"><?php _e('Angebotskatalog', 'feedback-voting'); ?></label>
+                <input type="text" id="feedback_voting_hasOfferCatalog" name="feedback_voting_hasOfferCatalog" value="<?php echo esc_attr($meta_values['hasOfferCatalog']); ?>" class="widefat" />
+            </p>
+        </div>
         <script>
         jQuery(function($){
             $('#feedback_voting_schema_type').on('change', function(){
                 if ($(this).val() === 'LocalBusiness') {
-                    $('#feedback_voting_address_wrap').show();
+                    $('#feedback_voting_localbusiness_fields').show();
                 } else {
-                    $('#feedback_voting_address_wrap').hide();
+                    $('#feedback_voting_localbusiness_fields').hide();
                 }
             }).trigger('change');
         });
@@ -914,6 +1057,26 @@ class My_Feedback_Plugin_Admin {
 
         $address = isset($_POST['feedback_voting_address']) ? sanitize_text_field($_POST['feedback_voting_address']) : '';
         update_post_meta($post_id, '_feedback_voting_address', $address);
+
+        $fields = array(
+            'business_name', 'business_id', 'streetAddress', 'addressLocality',
+            'addressRegion', 'postalCode', 'addressCountry', 'telephone', 'url',
+            'logo', 'description', 'openingHours', 'latitude', 'longitude',
+            'sameAs', 'image', 'priceRange', 'menu', 'servesCuisine', 'hasMap',
+            'department', 'areaServed', 'paymentAccepted', 'currenciesAccepted',
+            'parentOrganization', 'subOrganization', 'contactPoint', 'founder',
+            'foundingDate', 'foundingLocation', 'employee', 'numberOfEmployees',
+            'hasOfferCatalog'
+        );
+        foreach ($fields as $f) {
+            $val = isset($_POST['feedback_voting_' . $f]) ? $_POST['feedback_voting_' . $f] : '';
+            if (is_array($val)) {
+                $val = array_map('sanitize_text_field', $val);
+            } else {
+                $val = sanitize_text_field($val);
+            }
+            update_post_meta($post_id, '_feedback_voting_' . $f, $val);
+        }
     }
 
     /**
