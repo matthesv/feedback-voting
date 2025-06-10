@@ -880,11 +880,11 @@ class My_Feedback_Plugin_Admin {
                 <?php } ?>
             </select>
         </p>
-        <p id="feedback_voting_address_wrap">
+        <p id="feedback_voting_address_wrap" style="display:none">
             <label for="feedback_voting_address"><?php _e('Adresse', 'feedback-voting'); ?></label>
             <input type="text" id="feedback_voting_address" name="feedback_voting_address" value="<?php echo esc_attr($address); ?>" class="widefat" />
         </p>
-        <div id="feedback_voting_lb_fields">
+        <div id="feedback_voting_lb_fields" style="display:none">
             <p>
                 <label for="fv_lb_name"><?php _e('Name', 'feedback-voting'); ?></label>
                 <input type="text" id="fv_lb_name" name="feedback_voting_localbusiness[name]" value="<?php echo esc_attr($lb_data['name'] ?? ''); ?>" class="widefat" />
@@ -957,7 +957,7 @@ class My_Feedback_Plugin_Admin {
         <script>
         jQuery(function($){
             $('#feedback_voting_schema_type').on('change', function(){
-                if ($(this).val() === 'LocalBusiness') {
+                if ($(this).val().toLowerCase() === 'localbusiness') {
                     $('#feedback_voting_address_wrap').show();
                     $('#feedback_voting_lb_fields').show();
                 } else {
