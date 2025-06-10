@@ -860,6 +860,10 @@ class My_Feedback_Plugin_Admin {
         $schema_type  = get_post_meta($post->ID, '_feedback_voting_schema_type', true);
         $schema_type  = $schema_type ? $schema_type : 'Product';
         $address      = get_post_meta($post->ID, '_feedback_voting_address', true);
+        $lb_data      = get_post_meta($post->ID, '_feedback_voting_localbusiness', true);
+        if (!is_array($lb_data)) {
+            $lb_data = array();
+        }
         wp_nonce_field('feedback_voting_meta_box', 'feedback_voting_meta_box_nonce');
         ?>
         <p>
@@ -880,13 +884,85 @@ class My_Feedback_Plugin_Admin {
             <label for="feedback_voting_address"><?php _e('Adresse', 'feedback-voting'); ?></label>
             <input type="text" id="feedback_voting_address" name="feedback_voting_address" value="<?php echo esc_attr($address); ?>" class="widefat" />
         </p>
+        <div id="feedback_voting_lb_fields">
+            <p>
+                <label for="fv_lb_name"><?php _e('Name', 'feedback-voting'); ?></label>
+                <input type="text" id="fv_lb_name" name="feedback_voting_localbusiness[name]" value="<?php echo esc_attr($lb_data['name'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_id">@id</label>
+                <input type="text" id="fv_lb_id" name="feedback_voting_localbusiness[id]" value="<?php echo esc_attr($lb_data['id'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_street"><?php _e('Stra\xC3\x9Fe', 'feedback-voting'); ?></label>
+                <input type="text" id="fv_lb_street" name="feedback_voting_localbusiness[streetAddress]" value="<?php echo esc_attr($lb_data['streetAddress'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_locality"><?php _e('Ort', 'feedback-voting'); ?></label>
+                <input type="text" id="fv_lb_locality" name="feedback_voting_localbusiness[addressLocality]" value="<?php echo esc_attr($lb_data['addressLocality'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_region"><?php _e('Region', 'feedback-voting'); ?></label>
+                <input type="text" id="fv_lb_region" name="feedback_voting_localbusiness[addressRegion]" value="<?php echo esc_attr($lb_data['addressRegion'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_postal"><?php _e('Postleitzahl', 'feedback-voting'); ?></label>
+                <input type="text" id="fv_lb_postal" name="feedback_voting_localbusiness[postalCode]" value="<?php echo esc_attr($lb_data['postalCode'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_country"><?php _e('Land', 'feedback-voting'); ?></label>
+                <input type="text" id="fv_lb_country" name="feedback_voting_localbusiness[addressCountry]" value="<?php echo esc_attr($lb_data['addressCountry'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_tel"><?php _e('Telefon', 'feedback-voting'); ?></label>
+                <input type="text" id="fv_lb_tel" name="feedback_voting_localbusiness[telephone]" value="<?php echo esc_attr($lb_data['telephone'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_url">URL</label>
+                <input type="text" id="fv_lb_url" name="feedback_voting_localbusiness[url]" value="<?php echo esc_attr($lb_data['url'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_logo">Logo</label>
+                <input type="text" id="fv_lb_logo" name="feedback_voting_localbusiness[logo]" value="<?php echo esc_attr($lb_data['logo'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_desc"><?php _e('Beschreibung', 'feedback-voting'); ?></label>
+                <textarea id="fv_lb_desc" name="feedback_voting_localbusiness[description]" class="widefat" rows="2"><?php echo esc_textarea($lb_data['description'] ?? ''); ?></textarea>
+            </p>
+            <p>
+                <label for="fv_lb_hours"><?php _e('\xC3\x96ffnungszeiten', 'feedback-voting'); ?></label>
+                <input type="text" id="fv_lb_hours" name="feedback_voting_localbusiness[openingHours]" value="<?php echo esc_attr($lb_data['openingHours'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_lat">Latitude</label>
+                <input type="text" id="fv_lb_lat" name="feedback_voting_localbusiness[latitude]" value="<?php echo esc_attr($lb_data['latitude'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_lon">Longitude</label>
+                <input type="text" id="fv_lb_lon" name="feedback_voting_localbusiness[longitude]" value="<?php echo esc_attr($lb_data['longitude'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_sameAs">sameAs</label>
+                <textarea id="fv_lb_sameAs" name="feedback_voting_localbusiness[sameAs]" class="widefat" rows="2"><?php echo esc_textarea($lb_data['sameAs'] ?? ''); ?></textarea>
+            </p>
+            <p>
+                <label for="fv_lb_image">image</label>
+                <input type="text" id="fv_lb_image" name="feedback_voting_localbusiness[image]" value="<?php echo esc_attr($lb_data['image'] ?? ''); ?>" class="widefat" />
+            </p>
+            <p>
+                <label for="fv_lb_price">priceRange</label>
+                <input type="text" id="fv_lb_price" name="feedback_voting_localbusiness[priceRange]" value="<?php echo esc_attr($lb_data['priceRange'] ?? ''); ?>" class="widefat" />
+            </p>
+        </div>
         <script>
         jQuery(function($){
             $('#feedback_voting_schema_type').on('change', function(){
                 if ($(this).val() === 'LocalBusiness') {
                     $('#feedback_voting_address_wrap').show();
+                    $('#feedback_voting_lb_fields').show();
                 } else {
                     $('#feedback_voting_address_wrap').hide();
+                    $('#feedback_voting_lb_fields').hide();
                 }
             }).trigger('change');
         });
@@ -914,6 +990,9 @@ class My_Feedback_Plugin_Admin {
 
         $address = isset($_POST['feedback_voting_address']) ? sanitize_text_field($_POST['feedback_voting_address']) : '';
         update_post_meta($post_id, '_feedback_voting_address', $address);
+
+        $lb = isset($_POST['feedback_voting_localbusiness']) && is_array($_POST['feedback_voting_localbusiness']) ? array_map('sanitize_text_field', $_POST['feedback_voting_localbusiness']) : array();
+        update_post_meta($post_id, '_feedback_voting_localbusiness', $lb);
     }
 
     /**
