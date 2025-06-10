@@ -956,15 +956,26 @@ class My_Feedback_Plugin_Admin {
         </div>
         <script>
         jQuery(function($){
-            $('#feedback_voting_schema_type').on('change', function(){
-                if ($(this).val().toLowerCase() === 'localbusiness') {
+            function toggleLbFields() {
+                var $sel = $('#feedback_voting_schema_type');
+                if (!$sel.length) return;
+                if ($sel.val().toLowerCase() === 'localbusiness') {
                     $('#feedback_voting_address_wrap').show();
                     $('#feedback_voting_lb_fields').show();
                 } else {
                     $('#feedback_voting_address_wrap').hide();
                     $('#feedback_voting_lb_fields').hide();
                 }
-            }).trigger('change');
+            }
+
+            $(document).on('change', '#feedback_voting_schema_type', toggleLbFields);
+
+            var check = setInterval(function(){
+                if ($('#feedback_voting_schema_type').length) {
+                    toggleLbFields();
+                    clearInterval(check);
+                }
+            }, 200);
         });
         </script>
         <?php
