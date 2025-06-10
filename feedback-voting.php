@@ -3,7 +3,7 @@
 Plugin Name: Feedback Voting
 Plugin URI:  https://vogel-webmarketing.de/feedback-voting/
 Description: Bietet ein einfaches "War diese Antwort hilfreich?" (Ja/Nein) Feedback-Voting
-Version:     1.14.0
+Version:     1.15.0
 Author:      Matthes Vogel
 Text Domain: feedback-voting
 */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('FEEDBACK_VOTING_VERSION', '1.14.0');
+define('FEEDBACK_VOTING_VERSION', '1.15.0');
 define('FEEDBACK_VOTING_DB_VERSION', '1.0.1');
 define('FEEDBACK_VOTING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FEEDBACK_VOTING_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -132,6 +132,19 @@ function feedback_voting_get_address($post_id = 0) {
     return '';
 }
 
+function feedback_voting_get_localbusiness_data($post_id = 0) {
+    if (!$post_id) {
+        $post_id = is_singular() ? get_the_ID() : 0;
+    }
+    if ($post_id) {
+        $data = get_post_meta($post_id, '_feedback_voting_localbusiness', true);
+        if (is_array($data)) {
+            return $data;
+        }
+    }
+    return array();
+}
+
 function feedback_voting_schema_disabled($post_id = 0) {
     return false;
 }
@@ -164,9 +177,14 @@ function feedback_voting_output_schema() {
         'name'  => $feedback_voting_schema['name'],
     );
     if ($type === 'LocalBusiness') {
-        $address = feedback_voting_get_address($post_id);
-        if ($address) {
-            $itemReviewed['address'] = $address;
+        $lb = feedback_voting_get_localbusiness_data($post_id);
+        if (!empty($lb)) {
+            $itemReviewed = array_merge($itemReviewed, $lb);
+        } else {
+            $address = feedback_voting_get_address($post_id);
+            if ($address) {
+                $itemReviewed['address'] = $address;
+            }
         }
     }
     $data = array(

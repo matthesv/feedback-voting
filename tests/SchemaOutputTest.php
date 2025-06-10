@@ -111,6 +111,46 @@ class Schema_Output_Test extends WP_UnitTestCase {
         $this->assertSame( 'Main Street 1', $schema['itemReviewed']['address'] );
     }
 
+    public function test_localbusiness_custom_fields() {
+        global $wpdb, $feedback_voting_schema;
+
+        $feedback_voting_schema = [ 'score' => 0, 'count' => 0, 'name' => '', 'type' => '' ];
+
+        $post_id = self::factory()->post->create( [ 'post_title' => 'My Shop' ] );
+        update_post_meta( $post_id, '_feedback_voting_schema_type', 'LocalBusiness' );
+        update_post_meta( $post_id, '_feedback_voting_localbusiness', [
+            'name' => 'Shop Name',
+            'streetAddress' => 'Street 5',
+            'addressLocality' => 'Town',
+            'telephone' => '123',
+        ] );
+        $this->go_to( get_permalink( $post_id ) );
+        $table   = $wpdb->prefix . 'feedback_votes';
+        $now     = current_time( 'mysql' );
+
+        $wpdb->insert( $table, [
+            'question'      => 'Q',
+            'vote'          => 'yes',
+            'feedback_text' => '',
+            'post_id'       => $post_id,
+            'created_at'    => $now,
+        ] );
+
+        feedback_voting_track_schema( 4.0, 1, 'My Shop', 'LocalBusiness' );
+
+        wp_enqueue_block_template_skip_link();
+        ob_start();
+        do_action( 'wp_footer' );
+        $output = ob_get_clean();
+
+        preg_match( '/<script type="application\/ld\+json">(.*?)<\/script>/s', $output, $m );
+        $schema = json_decode( $m[1], true );
+
+        $this->assertSame( 'Shop Name', $schema['itemReviewed']['name'] );
+        $this->assertSame( 'Street 5', $schema['itemReviewed']['streetAddress'] );
+        $this->assertSame( '123', $schema['itemReviewed']['telephone'] );
+    }
+
     public function test_schema_disabled_via_attribute() {
         global $wpdb;
 
