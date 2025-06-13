@@ -5,6 +5,19 @@ if (!defined('ABSPATH')) {
 
 class My_Feedback_Plugin_Admin {
 
+    /** Singleton instance */
+    private static $instance = null;
+
+    /**
+     * Retrieve the singleton instance.
+     */
+    public static function get_instance() {
+        if ( null === self::$instance ) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
     public function __construct() {
         // Admin-Menüs und -Einstellungen
         add_action('admin_menu', array($this, 'register_admin_menu'));
@@ -987,8 +1000,9 @@ class My_Feedback_Plugin_Admin {
             $(document).on('change', '#feedback_voting_schema_type', toggleLbFields);
             toggleLbFields();
             switchTab($('.fv-meta-tabs .nav-tab-active').data('fv-tab'));
-        });
-        </script>
+});
+</script>
+<?php
     }
 
     /** Save meta box values */
