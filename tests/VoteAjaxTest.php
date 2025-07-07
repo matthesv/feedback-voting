@@ -16,6 +16,7 @@ class Vote_Ajax_Test extends WP_Ajax_UnitTestCase {
             'vote'     => 'yes',
             'feedback' => '',
             'post_id'  => 1,
+            'page_url' => 'http://example.org/page',
             'security' => wp_create_nonce( 'feedback_nonce_action' ),
         ];
 
@@ -43,6 +44,7 @@ class Vote_Ajax_Test extends WP_Ajax_UnitTestCase {
             'vote'          => 'no',
             'feedback_text' => '',
             'post_id'       => 2,
+            'page_url'      => 'http://example.org/post',
             'created_at'    => current_time( 'mysql' ),
         ] );
         $vote_id = $wpdb->insert_id;
@@ -50,6 +52,7 @@ class Vote_Ajax_Test extends WP_Ajax_UnitTestCase {
         $_POST = [
             'vote_id'  => $vote_id,
             'feedback' => 'Updated text',
+            'page_url' => 'http://example.org/post',
             'security' => wp_create_nonce( 'feedback_nonce_action' ),
         ];
 

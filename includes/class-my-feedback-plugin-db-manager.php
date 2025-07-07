@@ -25,6 +25,7 @@ class My_Feedback_Plugin_DB_Manager {
             vote VARCHAR(10) NOT NULL,
             feedback_text TEXT NULL,
             post_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
+            page_url TEXT NOT NULL,
             created_at DATETIME NOT NULL,
             PRIMARY KEY (id)
         ) $charset_collate;";

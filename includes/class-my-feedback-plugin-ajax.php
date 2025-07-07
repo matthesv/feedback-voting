@@ -31,6 +31,7 @@ class My_Feedback_Plugin_Ajax {
         $vote     = isset($_POST['vote']) ? sanitize_text_field($_POST['vote']) : '';
         $feedback = isset($_POST['feedback']) ? sanitize_textarea_field($_POST['feedback']) : '';
         $post_id  = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        $page_url = isset($_POST['page_url']) ? esc_url_raw($_POST['page_url']) : '';
 
         // Beim allerersten Insert benötigen wir mindestens eine Frage und einen Vote.
         // Beim Update könnte es sein, dass wir (strikt genommen) vote/frage nicht mehr benötigen,
@@ -48,10 +49,11 @@ class My_Feedback_Plugin_Ajax {
                 'vote'          => $vote,
                 'feedback_text' => $feedback, // kann hier leer sein
                 'post_id'       => $post_id,
+                'page_url'      => $page_url,
                 'created_at'    => current_time('mysql')
             );
 
-            $format = array('%s','%s','%s','%d','%s');
+            $format = array('%s','%s','%s','%d','%s','%s');
 
             $result = $wpdb->insert($table_name, $data, $format);
 

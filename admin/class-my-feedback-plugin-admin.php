@@ -783,6 +783,7 @@ class My_Feedback_Plugin_Admin {
                         <th><?php _e('Vote', 'feedback-voting'); ?></th>
                         <th><?php _e('Feedback-Text', 'feedback-voting'); ?></th>
                         <th><?php _e('Shortcode-Location', 'feedback-voting'); ?></th>
+                        <th><?php _e('URL', 'feedback-voting'); ?></th>
                         <th><?php _e('Post ID', 'feedback-voting'); ?></th>
                         <th><?php _e('Aktion', 'feedback-voting'); ?></th>
                     </tr>
@@ -808,12 +809,17 @@ class My_Feedback_Plugin_Admin {
                                     <em><?php echo esc_html($post_title); ?></em>
                                 <?php endif; ?>
                             </td>
+                            <td>
+                                <?php if (!empty($feedback->page_url)) : ?>
+                                    <a href="<?php echo esc_url($feedback->page_url); ?>" target="_blank"><?php echo esc_html($feedback->page_url); ?></a>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo intval($feedback->post_id); ?></td>
                             <td><button type="button" class="button feedback-copy-button"><?php _e('Kopieren', 'feedback-voting'); ?></button></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else : ?>
-                    <tr><td colspan="7"><?php _e('Keine Feedbacks vorhanden.', 'feedback-voting'); ?></td></tr>
+                    <tr><td colspan="8"><?php _e('Keine Feedbacks vorhanden.', 'feedback-voting'); ?></td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>
@@ -1058,6 +1064,7 @@ class My_Feedback_Plugin_Admin {
             __('Vote', 'feedback-voting'),
             __('Feedback-Text', 'feedback-voting'),
             __('Shortcode-Location', 'feedback-voting'),
+            __('URL', 'feedback-voting'),
             __('Post ID', 'feedback-voting'),
         );
         $columns_1252 = array_map(function($col) {
@@ -1077,6 +1084,7 @@ class My_Feedback_Plugin_Admin {
                 $r->vote,
                 $r->feedback_text,
                 $post_title,
+                $r->page_url,
                 $r->post_id
             );
             $line_1252 = array_map(function($val) {

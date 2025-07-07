@@ -19,6 +19,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
             'vote'          => 'yes',
             'feedback_text' => '',
             'post_id'       => $post_id,
+            'page_url'      => 'http://example.org/post',
             'created_at'    => $now,
         ] );
         $wpdb->insert( $table, [
@@ -26,6 +27,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
             'vote'          => 'no',
             'feedback_text' => '',
             'post_id'       => $post_id,
+            'page_url'      => 'http://example.org/post',
             'created_at'    => $now,
         ] );
 
@@ -61,6 +63,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
             'vote'          => 'yes',
             'feedback_text' => '',
             'post_id'       => $post_id,
+            'page_url'      => 'http://example.org/recipe',
             'created_at'    => $now,
         ] );
 
@@ -94,6 +97,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
             'vote'          => 'yes',
             'feedback_text' => '',
             'post_id'       => $post_id,
+            'page_url'      => 'http://example.org/business',
             'created_at'    => $now,
         ] );
 
@@ -133,6 +137,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
             'vote'          => 'yes',
             'feedback_text' => '',
             'post_id'       => $post_id,
+            'page_url'      => 'http://example.org/shop',
             'created_at'    => $now,
         ] );
 
@@ -164,6 +169,7 @@ class Schema_Output_Test extends WP_UnitTestCase {
             'vote'          => 'yes',
             'feedback_text' => '',
             'post_id'       => $post_id,
+            'page_url'      => 'http://example.org/noschema',
             'created_at'    => $now,
         ] );
 
