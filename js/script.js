@@ -53,6 +53,7 @@ jQuery(function($) {
                 'yes',
                 '',
                 postId,
+                window.location.href,
                 function onSuccess() {
                     if (preventMultiple) {
                         setCookie(cookieName, '1', 24);
@@ -78,6 +79,7 @@ jQuery(function($) {
                 'no',
                 '',
                 postId,
+                window.location.href,
                 function onSuccess(response) {
                     // Speichern des Vote-ID in container (für späteres Update)
                     if (response.vote_id) {
@@ -130,6 +132,7 @@ jQuery(function($) {
             'no',            // vote bleibt 'no'
             feedbackText,
             postId,
+            window.location.href,
             function onSuccess() {
                 if (preventMultiple) {
                     setCookie(cookieName, '1', 24);
@@ -156,7 +159,7 @@ jQuery(function($) {
      * @param {function} successCallback
      * @param {function} errorCallback
      */
-    function ajaxVote(voteId, question, vote, feedback, postId, successCallback, errorCallback) {
+    function ajaxVote(voteId, question, vote, feedback, postId, pageUrl, successCallback, errorCallback) {
         $.ajax({
             url: feedbackVoting.ajaxUrl,
             method: 'POST',
@@ -167,6 +170,7 @@ jQuery(function($) {
                 vote: vote,
                 feedback: feedback,
                 post_id: postId,
+                page_url: pageUrl,
                 // Nonce:
                 security: feedbackVoting.nonce
             },

@@ -13,6 +13,7 @@ class Score_Shortcode_Test extends WP_UnitTestCase {
             'vote'          => 'yes',
             'feedback_text' => '',
             'post_id'       => 1,
+            'page_url'      => 'http://example.org/1',
             'created_at'    => $now,
         ] );
         $wpdb->insert( $table, [
@@ -20,6 +21,7 @@ class Score_Shortcode_Test extends WP_UnitTestCase {
             'vote'          => 'no',
             'feedback_text' => '',
             'post_id'       => 1,
+            'page_url'      => 'http://example.org/1',
             'created_at'    => $now,
         ] );
 
@@ -37,6 +39,7 @@ class Score_Shortcode_Test extends WP_UnitTestCase {
             'vote'          => 'yes',
             'feedback_text' => '',
             'post_id'       => 2,
+            'page_url'      => 'http://example.org/2',
             'created_at'    => $now,
         ] );
 
@@ -45,6 +48,7 @@ class Score_Shortcode_Test extends WP_UnitTestCase {
             'vote'          => 'no',
             'feedback_text' => '',
             'post_id'       => 2,
+            'page_url'      => 'http://example.org/2',
             'created_at'    => $now,
         ] );
 
